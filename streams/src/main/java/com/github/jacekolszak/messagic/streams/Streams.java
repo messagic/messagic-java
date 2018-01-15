@@ -15,13 +15,17 @@ public class Streams {
     private final OutputStream output;
     private final StreamsMessageChannel channel;
 
-    public Streams(InputStream input, OutputStream output) {
+    public static MessageChannel channel(InputStream input, OutputStream output) {
+        return new Streams(input, output).channel();
+    }
+
+    private Streams(InputStream input, OutputStream output) {
         this.input = input;
         this.output = output;
         channel = new StreamsMessageChannel();
     }
 
-    public MessageChannel channel() {
+    private MessageChannel channel() {
         return channel;
     }
 
@@ -33,9 +37,7 @@ public class Streams {
         private InputStreamDecoder decoder;
         private int binaryMessageMaximumSize = 8192;
         private int textMessageMaximumSize = 8192;
-        private Consumer<String> decodingErrorConsumer = error -> {
-            sendError(error);
-        };
+        private Consumer<String> decodingErrorConsumer = this::sendError;
 
         @Override
         public void setBinaryMessageMaximumSize(int bytes) {

@@ -15,19 +15,12 @@ class StreamsChannelSpec extends Specification {
     private final PipedOutputStream inputPipe = new PipedOutputStream(input)
     private final ByteArrayOutputStream output = new ByteArrayOutputStream()
 
-    private final Streams streams = new Streams(input, output)
-
     @Subject
-    private final MessageChannel channel = streams.channel()
+    private final MessageChannel channel = Streams.channel(input, output)
 
     void 'should create channel'() {
         expect:
             channel != null
-    }
-
-    void 'should always return same channel instance. It is not possible to have two different channels on same InputStream and OutputStream'() {
-        expect:
-            channel == streams.channel()
     }
 
     void 'should send text message to stream'() {
@@ -82,7 +75,7 @@ class StreamsChannelSpec extends Specification {
         when:
             inputPipe.write('#@$%\n'.bytes)
         then:
-            Thread.sleep(1000) // TODO ło matulu
+            Thread.sleep(1000) // TODO Replace with latch
             output.toString().startsWith('!Bad encoding of incoming binary message: ')
     }
 
@@ -138,8 +131,7 @@ class StreamsChannelSpec extends Specification {
         given:
             PipedOutputStream out = new PipedOutputStream()
             PipedInputStream outputPipe = new PipedInputStream(out)
-            Streams streams = new Streams(input, out)
-            MessageChannel channel = streams.channel()
+            MessageChannel channel = Streams.channel(input, out)
             CountDownLatch latch = new CountDownLatch(1)
             ErrorConsumerMock errorConsumer = new ErrorConsumerMock(latch)
             channel.errorConsumer = errorConsumer
@@ -156,8 +148,7 @@ class StreamsChannelSpec extends Specification {
         given:
             PipedOutputStream out = new PipedOutputStream()
             PipedInputStream outputPipe = new PipedInputStream(out)
-            Streams streams = new Streams(input, out)
-            MessageChannel channel = streams.channel()
+            MessageChannel channel = Streams.channel(input, out)
             CountDownLatch latch = new CountDownLatch(1)
             ErrorConsumerMock errorConsumer = new ErrorConsumerMock(latch)
             channel.errorConsumer = errorConsumer
