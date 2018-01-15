@@ -75,6 +75,7 @@ class StreamsChannelSpec extends Specification {
 
     void 'should send error to sender when binary message cannot be parsed'() {
         given:
+            channel.binaryMessageConsumer = {}
             channel.open()
         when:
             inputPipe.write('#@$%\n'.bytes)

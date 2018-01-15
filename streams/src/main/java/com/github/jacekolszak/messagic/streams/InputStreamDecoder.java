@@ -118,18 +118,14 @@ class InputStreamDecoder {
             int size = 0;
             input.mark(limit);
             while (size < limit) {
-                int b = input.read();
-                if (b == -1) {
-                    throw new EOFException();
-                } else if (b == separator) {
+                int b = readByte();
+                if (b == separator) {
                     input.reset();
                     byte[] message = new byte[size];
                     if (input.read(message) == -1) {
                         throw new EOFException();
                     }
-                    if (input.read() == -1) {
-                        throw new EOFException();
-                    }
+                    readByte();
                     return message;
                 } else {
                     size += 1;
