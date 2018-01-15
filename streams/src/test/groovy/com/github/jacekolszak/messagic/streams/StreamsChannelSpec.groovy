@@ -131,12 +131,13 @@ class StreamsChannelSpec extends Specification {
             outputReader.readLine() == 'ok'
     }
 
-    void 'should convert exception thrown by consumer to error text message'() {
+    @Unroll
+    void 'should send "#line" when consumer throws exception with message "#exceptionMessage"'() {
         given:
             CountDownLatch latch = new CountDownLatch(1)
             channel.textMessageConsumer = { msg ->
                 if (msg == 'messageCausingError') {
-                    throw new RuntimeException("Deliberate exception")
+                    throw new RuntimeException(exceptionMessage)
                 } else {
                     latch.countDown()
                 }
@@ -147,7 +148,50 @@ class StreamsChannelSpec extends Specification {
             inputPipe.write('other\n'.bytes)
         then:
             latch.await(2, TimeUnit.SECONDS)
-            outputReader.readLine() == '!Deliberate exception'
+            outputReader.readLine() == line
+        where:
+            exceptionMessage       || line
+            'Deliberate exception' || '!Deliberate exception'
+            ''                     || '!'
+    }
+
+    void 'should send !null when consumer throws exception with null message'() {
+        given:
+            CountDownLatch latch = new CountDownLatch(1)
+            channel.textMessageConsumer = { msg ->
+                if (msg == 'messageCausingError') {
+                    throw new RuntimeException((String) null)
+                } else {
+                    latch.countDown()
+                }
+            }
+            channel.open()
+        when:
+            inputPipe.write('messageCausingError\n'.bytes)
+            inputPipe.write('other\n'.bytes)
+        then:
+            latch.await(2, TimeUnit.SECONDS)
+            outputReader.readLine() == '!null'
+    }
+
+    void 'should limit number of characters for error message to errorMessageCutOffSize'() {
+        given:
+            CountDownLatch latch = new CountDownLatch(1)
+            channel.errorMessageCutOffSize = 4;
+            channel.textMessageConsumer = { msg ->
+                if (msg == 'messageCausingError') {
+                    throw new RuntimeException('very long message')
+                } else {
+                    latch.countDown()
+                }
+            }
+            channel.open()
+        when:
+            inputPipe.write('messageCausingError\n'.bytes)
+            inputPipe.write('other\n'.bytes)
+        then:
+            latch.await(2, TimeUnit.SECONDS)
+            outputReader.readLine() == '!very'
     }
 
     void 'should parse error'() {

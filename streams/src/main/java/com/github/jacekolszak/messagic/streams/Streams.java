@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.github.jacekolszak.messagic.FatalError;
@@ -48,6 +49,7 @@ public class Streams {
         private InputStreamDecoder decoder;
         private int binaryMessageMaximumSize = 8192;
         private int textMessageMaximumSize = 8192;
+        private int errorMessageCutOffSize = 256;
         private Consumer<String> decodingErrorConsumer = this::sendError;
 
         @Override
@@ -58,6 +60,11 @@ public class Streams {
         @Override
         public void setTextMessageMaximumSize(int characters) {
             this.textMessageMaximumSize = characters;
+        }
+
+        @Override
+        public void setErrorMessageCutOffSize(int characters) {
+            this.errorMessageCutOffSize = characters;
         }
 
         @Override
@@ -138,10 +145,12 @@ public class Streams {
         }
 
         private void sendError(String error) {
-            // TODO Check size first and limit error message to a given maximum
             try {
                 output.write('!');
-                output.write(error.getBytes());
+                String errorMessage = Optional.ofNullable(error)
+                        .orElse("null")
+                        .substring(0, errorMessageCutOffSize);
+                output.write(errorMessage.getBytes());
                 output.write('\n');
             } catch (IOException e) {
                 errorConsumer.accept(new EndpointNotReachable(e.getMessage()));
