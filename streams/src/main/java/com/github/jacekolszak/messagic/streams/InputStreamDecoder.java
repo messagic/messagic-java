@@ -64,13 +64,13 @@ class InputStreamDecoder {
         void readMessage(Consumer<String> textConsumer, Consumer<byte[]> binaryConsumer, Consumer<String> decodingErrorConsumer) throws IOException {
             int messageTypeOrFistCharacter = buffer.readByte();
             if (messageTypeOrFistCharacter == '#') {
-                byte[] message = buffer.readUntil((byte) '\n', binaryMessageMaximumSize);
+                byte[] message = buffer.readLine(binaryMessageMaximumSize);
                 if (message == null) {
                     throw new IOException("Payload of received binary message exceeded maximum size");
                 }
                 publishDecodedMessage(binaryConsumer, message, decodingErrorConsumer);
             } else if (messageTypeOrFistCharacter == '!') {
-                byte[] message = buffer.readUntil((byte) '\n', textMessageMaximumSize);
+                byte[] message = buffer.readLine(textMessageMaximumSize);
                 if (message == null) {
                     throw new IOException("Payload of received error message exceeded maximum size");
                 }
@@ -78,7 +78,7 @@ class InputStreamDecoder {
                     errorConsumer.accept(new ConsumerError(new String(message)));
                 }
             } else {
-                byte[] message = buffer.readUntil((byte) '\n', textMessageMaximumSize);
+                byte[] message = buffer.readLine(textMessageMaximumSize);
                 if (message == null) {
                     throw new IOException("Payload of received text message exceeded maximum size");
                 }
@@ -114,12 +114,12 @@ class InputStreamDecoder {
             input = new BufferedInputStream(inputStream);
         }
 
-        public byte[] readUntil(byte separator, int limit) throws IOException {
+        public byte[] readLine(int limit) throws IOException {
             int size = 0;
             input.mark(limit);
             while (size < limit) {
                 int b = readByte();
-                if (b == separator) {
+                if (b == '\n') {
                     input.reset();
                     byte[] message = new byte[size];
                     if (input.read(message) == -1) {
