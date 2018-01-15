@@ -74,25 +74,35 @@ class InputStreamDecoder {
                 if (message == null) {
                     throw new IOException("Payload of received error message exceeded maximum size");
                 }
-                errorConsumer.accept(new ConsumerError(new String(message)));
+                if (errorConsumer != null) {
+                    errorConsumer.accept(new ConsumerError(new String(message)));
+                }
             } else {
                 byte[] message = buffer.readUntil((byte) '\n', textMessageMaximumSize);
                 if (message == null) {
                     throw new IOException("Payload of received text message exceeded maximum size");
                 }
-                textConsumer.accept((char) messageTypeOrFistCharacter + new String(message));
+                if (textConsumer != null) {
+                    textConsumer.accept((char) messageTypeOrFistCharacter + new String(message));
+                } else {
+                    decodingErrorConsumer.accept("Text message cannot be consumed");
+                }
             }
         }
 
         private void publishDecodedMessage(Consumer<byte[]> binaryConsumer, byte[] message, Consumer<String> decodingErrorConsumer) {
-            byte[] decoded = null;
-            try {
-                decoded = Base64.getDecoder().decode(message);
-            } catch (IllegalArgumentException e) {
-                decodingErrorConsumer.accept("Bad encoding of incoming binary message: " + e.getMessage());
-                return;
+            if (binaryConsumer == null) {
+                decodingErrorConsumer.accept("Binary message cannot be consumed");
+            } else {
+                byte[] decoded;
+                try {
+                    decoded = Base64.getDecoder().decode(message);
+                } catch (IllegalArgumentException e) {
+                    decodingErrorConsumer.accept("Bad encoding of incoming binary message: " + e.getMessage());
+                    return;
+                }
+                binaryConsumer.accept(decoded);
             }
-            binaryConsumer.accept(decoded);
         }
     }
 

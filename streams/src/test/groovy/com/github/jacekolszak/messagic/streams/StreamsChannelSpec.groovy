@@ -4,11 +4,13 @@ import com.github.jacekolszak.messagic.FatalError
 import com.github.jacekolszak.messagic.MessageChannel
 import spock.lang.Specification
 import spock.lang.Subject
+import spock.lang.Timeout
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
 
+@Timeout(3)
 class StreamsChannelSpec extends Specification {
 
     private final PipedInputStream input = new PipedInputStream()
@@ -78,6 +80,35 @@ class StreamsChannelSpec extends Specification {
             inputPipe.write('#@$%\n'.bytes)
         then:
             outputReader.readLine().startsWith('!Bad encoding of incoming binary message: ')
+    }
+
+    void 'should send error to sender when binary message was sent but no consumer was set on the receiver'() {
+        given:
+            channel.open()
+        when:
+            inputPipe.write('#AQID\n'.bytes) // #123\n
+        then:
+            outputReader.readLine() == '!Binary message cannot be consumed'
+    }
+
+    void 'should send error to sender when text message was sent but no consumer was set on the receiver'() {
+        given:
+            channel.open()
+        when:
+            inputPipe.write('text\n'.bytes)
+        then:
+            outputReader.readLine() == '!Text message cannot be consumed'
+    }
+
+    void 'should ignore error messages sent by other peer when error consumer is not set'() {
+        given:
+            channel.textMessageConsumer = { msg -> channel.send('ok') }
+            channel.open()
+        when:
+            inputPipe.write('!error\n'.bytes)
+            inputPipe.write('is ok?\n'.bytes)
+        then:
+            outputReader.readLine() == 'ok'
     }
 
     void 'should convert exception thrown by consumer to error text message'() {
