@@ -101,14 +101,13 @@ class StreamsChannelSpec extends Specification {
 
     void 'should parse error'() {
         given:
-            CountDownLatch latch = new CountDownLatch(1)
-            ErrorConsumerMock errorConsumer = new ErrorConsumerMock(latch)
+            ErrorConsumerMock errorConsumer = new ErrorConsumerMock()
             channel.errorConsumer = errorConsumer
             channel.open()
         when:
             inputPipe.write('!Some error\n'.bytes)
         then:
-            latch.await(2, TimeUnit.SECONDS)
+            errorConsumer.await()
             FatalError errorReceived = errorConsumer.errorReceived
             errorReceived.isPeerError()
             errorReceived.message() == 'Some error'
@@ -117,31 +116,26 @@ class StreamsChannelSpec extends Specification {
 
     void 'when could not read from input stream then PeerNotReachable error should be reported'() {
         given:
-            CountDownLatch latch = new CountDownLatch(1)
-            ErrorConsumerMock errorConsumer = new ErrorConsumerMock(latch)
+            ErrorConsumerMock errorConsumer = new ErrorConsumerMock()
             channel.errorConsumer = errorConsumer
             channel.open()
         when:
             inputPipe.close()
         then:
-            latch.await(2, TimeUnit.SECONDS)
+            errorConsumer.await()
             errorConsumer.errorReceived.isPeerNotReachable()
     }
 
     void 'when could not write text to output stream then PeerNotReachable error should be reported'() {
         given:
-            PipedOutputStream out = new PipedOutputStream()
-            PipedInputStream outputPipe = new PipedInputStream(out)
-            MessageChannel channel = Streams.channel(input, out)
-            CountDownLatch latch = new CountDownLatch(1)
-            ErrorConsumerMock errorConsumer = new ErrorConsumerMock(latch)
+            ErrorConsumerMock errorConsumer = new ErrorConsumerMock()
             channel.errorConsumer = errorConsumer
             channel.open()
         when:
             outputPipe.close()
             channel.send('test')
         then:
-            latch.await(2, TimeUnit.SECONDS)
+            errorConsumer.await()
             errorConsumer.errorReceived.isPeerNotReachable()
     }
 
@@ -150,29 +144,27 @@ class StreamsChannelSpec extends Specification {
             PipedOutputStream out = new PipedOutputStream()
             PipedInputStream outputPipe = new PipedInputStream(out)
             MessageChannel channel = Streams.channel(input, out)
-            CountDownLatch latch = new CountDownLatch(1)
-            ErrorConsumerMock errorConsumer = new ErrorConsumerMock(latch)
+            ErrorConsumerMock errorConsumer = new ErrorConsumerMock()
             channel.errorConsumer = errorConsumer
             channel.open()
         when:
             outputPipe.close()
             channel.send([1] as byte[])
         then:
-            latch.await(2, TimeUnit.SECONDS)
+            errorConsumer.await()
             errorConsumer.errorReceived.isPeerNotReachable()
     }
 
     void 'should report an error and close the channel when sent binary message was too big'() {
         given:
-            CountDownLatch latch = new CountDownLatch(1)
             channel.binaryMessageMaximumSize = 16
-            ErrorConsumerMock errorConsumer = new ErrorConsumerMock(latch)
+            ErrorConsumerMock errorConsumer = new ErrorConsumerMock()
             channel.errorConsumer = errorConsumer
             channel.open()
         when:
             channel.send(new byte[17])
         then:
-            latch.await(2, TimeUnit.SECONDS)
+            errorConsumer.await()
             FatalError errorReceived = errorConsumer.errorReceived
             errorReceived.isPeerNotReachable()
             errorReceived.message() == 'Payload of sent binary message exceeded maximum size'
@@ -180,15 +172,14 @@ class StreamsChannelSpec extends Specification {
 
     void 'should report an error and close the channel when sent text message was too big'() {
         given:
-            CountDownLatch latch = new CountDownLatch(1)
             channel.textMessageMaximumSize = 5
-            ErrorConsumerMock errorConsumer = new ErrorConsumerMock(latch)
+            ErrorConsumerMock errorConsumer = new ErrorConsumerMock()
             channel.errorConsumer = errorConsumer
             channel.open()
         when:
             channel.send('123456')
         then:
-            latch.await(2, TimeUnit.SECONDS)
+            errorConsumer.await()
             FatalError errorReceived = errorConsumer.errorReceived
             errorReceived.isPeerNotReachable()
             errorReceived.message() == 'Payload of sent text message exceeded maximum size'
@@ -196,15 +187,14 @@ class StreamsChannelSpec extends Specification {
 
     void 'should report and close the channel when received binary message was too big'() {
         given:
-            CountDownLatch latch = new CountDownLatch(1)
             channel.binaryMessageMaximumSize = 2
-            ErrorConsumerMock errorConsumer = new ErrorConsumerMock(latch)
+            ErrorConsumerMock errorConsumer = new ErrorConsumerMock()
             channel.errorConsumer = errorConsumer
             channel.open()
         when:
             inputPipe.write('#AQID\n'.bytes) // 3 bytes that is [1,2,3]
         then:
-            latch.await(2, TimeUnit.SECONDS)
+            errorConsumer.await()
             FatalError errorReceived = errorConsumer.errorReceived
             errorReceived.isPeerNotReachable()
             errorReceived.message() == 'Payload of received binary message exceeded maximum size'
@@ -212,15 +202,14 @@ class StreamsChannelSpec extends Specification {
 
     void 'should report and close the channel when received text message was too big'() {
         given:
-            CountDownLatch latch = new CountDownLatch(1)
             channel.textMessageMaximumSize = 2
-            ErrorConsumerMock errorConsumer = new ErrorConsumerMock(latch)
+            ErrorConsumerMock errorConsumer = new ErrorConsumerMock()
             channel.errorConsumer = errorConsumer
             channel.open()
         when:
             inputPipe.write('123\n'.bytes)
         then:
-            latch.await(2, TimeUnit.SECONDS)
+            errorConsumer.await()
             FatalError errorReceived = errorConsumer.errorReceived
             errorReceived.isPeerNotReachable()
             errorReceived.message() == 'Payload of received text message exceeded maximum size'
@@ -228,15 +217,14 @@ class StreamsChannelSpec extends Specification {
 
     void 'should report and close the channel when received error message was too big'() {
         given:
-            CountDownLatch latch = new CountDownLatch(1)
             channel.textMessageMaximumSize = 2
-            ErrorConsumerMock errorConsumer = new ErrorConsumerMock(latch)
+            ErrorConsumerMock errorConsumer = new ErrorConsumerMock()
             channel.errorConsumer = errorConsumer
             channel.open()
         when:
             inputPipe.write('!123\n'.bytes)
         then:
-            latch.await(2, TimeUnit.SECONDS)
+            errorConsumer.await()
             FatalError errorReceived = errorConsumer.errorReceived
             errorReceived.isPeerNotReachable()
             errorReceived.message() == 'Payload of received error message exceeded maximum size'
@@ -247,14 +235,18 @@ class StreamsChannelSpec extends Specification {
         FatalError errorReceived = null
         final CountDownLatch latch
 
-        ErrorConsumerMock(CountDownLatch latch) {
-            this.latch = latch
+        ErrorConsumerMock() {
+            this.latch = new CountDownLatch(1)
         }
 
         @Override
         void accept(FatalError fatalError) {
             errorReceived = fatalError
             latch.countDown()
+        }
+
+        boolean await() {
+            latch.await(2, TimeUnit.SECONDS)
         }
 
     }
