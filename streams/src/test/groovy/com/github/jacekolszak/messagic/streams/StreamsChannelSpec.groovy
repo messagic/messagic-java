@@ -13,7 +13,9 @@ class StreamsChannelSpec extends Specification {
 
     private final PipedInputStream input = new PipedInputStream()
     private final PipedOutputStream inputPipe = new PipedOutputStream(input)
-    private final ByteArrayOutputStream output = new ByteArrayOutputStream()
+    private final PipedInputStream outputPipe = new PipedInputStream()
+    private final PipedOutputStream output = new PipedOutputStream(outputPipe)
+    private final InputStreamReader outputReader = new InputStreamReader(outputPipe)
 
     @Subject
     private final MessageChannel channel = Streams.channel(input, output)
@@ -27,14 +29,14 @@ class StreamsChannelSpec extends Specification {
         when:
             channel.send('textMessage')
         then:
-            output.toString() == 'textMessage\n'
+            outputReader.readLine() == 'textMessage'
     }
 
     void 'binary messages should be encoded using base64 with "#" character as a prefix and new line in the end'() {
         when:
             channel.send([1, 2, 3] as byte[])
         then:
-            output.toString() == '#AQID\n'
+            outputReader.readLine() == '#AQID'
     }
 
     void 'should parse text message and pass it to consumer'() {
@@ -75,8 +77,7 @@ class StreamsChannelSpec extends Specification {
         when:
             inputPipe.write('#@$%\n'.bytes)
         then:
-            Thread.sleep(1000) // TODO Replace with latch
-            output.toString().startsWith('!Bad encoding of incoming binary message: ')
+            outputReader.readLine().startsWith('!Bad encoding of incoming binary message: ')
     }
 
     void 'should convert exception thrown by consumer to error text message'() {
@@ -95,7 +96,7 @@ class StreamsChannelSpec extends Specification {
             inputPipe.write('other\n'.bytes)
         then:
             latch.await(2, TimeUnit.SECONDS)
-            output.toString() == '!Deliberate exception\n'
+            outputReader.readLine() == '!Deliberate exception'
     }
 
     void 'should parse error'() {
