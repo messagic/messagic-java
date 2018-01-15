@@ -35,6 +35,13 @@ class StreamsChannelSpec extends Specification {
             outputReader.readLine() == 'textMessage'
     }
 
+    void 'should send empty text message to stream'() {
+        when:
+            channel.send('')
+        then:
+            outputReader.readLine() == ''
+    }
+
     @Unroll
     void 'when send is executed, should encode text message "#message" as "#line\\n"'() {
         when:
@@ -74,6 +81,8 @@ class StreamsChannelSpec extends Specification {
             inputString      || expectedMessage
             'textMessage\n'  || 'textMessage'
             '#textMessage\n' || 'textMessage'
+            '\n'             || ''
+            '#\n'            || ''
     }
 
     void 'should parse encoded binary message and pass it to consumer'() {

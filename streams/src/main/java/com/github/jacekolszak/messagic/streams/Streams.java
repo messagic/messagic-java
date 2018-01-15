@@ -140,16 +140,19 @@ public class Streams {
         }
 
         private boolean messageStartsWithSpecialCharacter(String message) {
-            char firstChar = message.charAt(0);
-            return firstChar == '#' || firstChar == '$' || firstChar == '!';
+            if (!message.isEmpty()) {
+                char firstChar = message.charAt(0);
+                return firstChar == '#' || firstChar == '$' || firstChar == '!';
+            } else {
+                return false;
+            }
         }
 
         private void sendError(String error) {
             try {
                 output.write('!');
-                String errorMessage = Optional.ofNullable(error)
-                        .orElse("null")
-                        .substring(0, errorMessageCutOffSize);
+                String errorMessage = Optional.ofNullable(error).orElse("null");
+                errorMessage = errorMessage.substring(0, Math.min(errorMessageCutOffSize, errorMessage.length()));
                 output.write(errorMessage.getBytes());
                 output.write('\n');
             } catch (IOException e) {
