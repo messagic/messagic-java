@@ -9,20 +9,31 @@ import java.util.function.Consumer;
 import com.github.jacekolszak.messagic.FatalError;
 import com.github.jacekolszak.messagic.MessageChannel;
 
+/**
+ * Encodes messages into OutputStream and decodes from InputStream.
+ * <p>
+ * The implementation is very simple - every message is separated by a new line character. First byte in the message is a message type. Rest is the payload, ex.
+ * <ul>
+ * <li><code>#textMessage\n</code> ex. <code>#hello\n</code></li>
+ * <li><code>$binaryMessageEncodedInBase64\n</code> ex. <code>$AQID</code> for bytes [1,2,3]</li>
+ * <li><code>!error\n</code>, ex. <code>!something bad happened</code></li>
+ * </ul>
+ * Message type can be skipped for text messages if the message does not start with <code>#</code>, <code>$</code> or <code>!</code> ex. <code>hello\n</code>
+ */
 public class Streams {
 
     private final InputStream input;
     private final OutputStream output;
     private final StreamsMessageChannel channel;
 
-    public static MessageChannel channel(InputStream input, OutputStream output) {
-        return new Streams(input, output).channel();
-    }
-
     private Streams(InputStream input, OutputStream output) {
         this.input = input;
         this.output = output;
         channel = new StreamsMessageChannel();
+    }
+
+    public static MessageChannel channel(InputStream input, OutputStream output) {
+        return new Streams(input, output).channel();
     }
 
     private MessageChannel channel() {
@@ -94,7 +105,7 @@ public class Streams {
                 close();
             } else {
                 try {
-                    output.write('#');
+                    output.write('$');
                     output.write(Base64.getEncoder().encode(message));
                     output.write('\n');
                 } catch (IOException e) {
@@ -110,6 +121,9 @@ public class Streams {
                 close();
             } else {
                 try {
+                    if (messageStartsWithSpecialCharacter(message)) {
+                        output.write('#');
+                    }
                     output.write(message.getBytes());
                     output.write('\n');
                 } catch (IOException e) {
@@ -118,8 +132,20 @@ public class Streams {
             }
         }
 
+        private boolean messageStartsWithSpecialCharacter(String message) {
+            char firstChar = message.charAt(0);
+            return firstChar == '#' || firstChar == '$' || firstChar == '!';
+        }
+
         private void sendError(String error) {
-            send('!' + error); // TODO hack
+            // TODO Check size first and limit error message to a given maximum
+            try {
+                output.write('!');
+                output.write(error.getBytes());
+                output.write('\n');
+            } catch (IOException e) {
+                errorConsumer.accept(new EndpointNotReachable(e.getMessage()));
+            }
         }
 
     }

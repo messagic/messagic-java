@@ -63,7 +63,7 @@ class InputStreamDecoder {
 
         void readMessage(Consumer<String> textConsumer, Consumer<byte[]> binaryConsumer, Consumer<String> decodingErrorConsumer) throws IOException {
             int messageTypeOrFistCharacter = buffer.readByte();
-            if (messageTypeOrFistCharacter == '#') {
+            if (messageTypeOrFistCharacter == '$') {
                 byte[] message = buffer.readLine(binaryMessageMaximumSize);
                 if (message == null) {
                     throw new IOException("Payload of received binary message exceeded maximum size");
@@ -83,7 +83,8 @@ class InputStreamDecoder {
                     throw new IOException("Payload of received text message exceeded maximum size");
                 }
                 if (textConsumer != null) {
-                    textConsumer.accept((char) messageTypeOrFistCharacter + new String(message));
+                    String textMessage = (messageTypeOrFistCharacter != '#') ? (char) messageTypeOrFistCharacter + new String(message) : new String(message);
+                    textConsumer.accept(textMessage);
                 } else {
                     decodingErrorConsumer.accept("Text message cannot be consumed");
                 }

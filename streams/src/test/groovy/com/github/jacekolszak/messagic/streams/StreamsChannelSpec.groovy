@@ -5,6 +5,7 @@ import com.github.jacekolszak.messagic.MessageChannel
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Timeout
+import spock.lang.Unroll
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -34,14 +35,28 @@ class StreamsChannelSpec extends Specification {
             outputReader.readLine() == 'textMessage'
     }
 
-    void 'binary messages should be encoded using base64 with "#" character as a prefix and new line in the end'() {
+    @Unroll
+    void 'when send is executed, should encode text message "#message" as "#line\\n"'() {
+        when:
+            channel.send(message)
+        then:
+            outputReader.readLine() == line
+        where:
+            message    || line
+            '#message' || '##message'
+            '$message' || '#$message'
+            '!message' || '#!message'
+    }
+
+    void 'binary messages should be encoded using base64 with "$" character as a prefix and new line in the end'() {
         when:
             channel.send([1, 2, 3] as byte[])
         then:
-            outputReader.readLine() == '#AQID'
+            outputReader.readLine() == '$AQID'
     }
 
-    void 'should parse text message and pass it to consumer'() {
+    @Unroll
+    void 'should parse encoded text message "#inputString" and pass it to consumer as "#expectedMessage"'() {
         given:
             CountDownLatch latch = new CountDownLatch(1)
             String messageReceived = null
@@ -51,13 +66,17 @@ class StreamsChannelSpec extends Specification {
             }
             channel.open()
         when:
-            inputPipe.write('textMessage\n'.bytes)
+            inputPipe.write(inputString.bytes)
         then:
             latch.await(2, TimeUnit.SECONDS)
-            messageReceived == 'textMessage'
+            messageReceived == expectedMessage
+        where:
+            inputString      || expectedMessage
+            'textMessage\n'  || 'textMessage'
+            '#textMessage\n' || 'textMessage'
     }
 
-    void 'should parse binary message and pass it to consumer'() {
+    void 'should parse encoded binary message and pass it to consumer'() {
         given:
             CountDownLatch latch = new CountDownLatch(1)
             byte[] messageReceived = null
@@ -67,7 +86,7 @@ class StreamsChannelSpec extends Specification {
             }
             channel.open()
         when:
-            inputPipe.write('#AQID\n'.bytes) // #123\n
+            inputPipe.write('$AQID\n'.bytes) // #123\n
         then:
             latch.await(2, TimeUnit.SECONDS)
             messageReceived == [1, 2, 3] as byte[]
@@ -78,7 +97,7 @@ class StreamsChannelSpec extends Specification {
             channel.binaryMessageConsumer = {}
             channel.open()
         when:
-            inputPipe.write('#@$%\n'.bytes)
+            inputPipe.write('$@$%\n'.bytes)
         then:
             outputReader.readLine().startsWith('!Bad encoding of incoming binary message: ')
     }
@@ -87,7 +106,7 @@ class StreamsChannelSpec extends Specification {
         given:
             channel.open()
         when:
-            inputPipe.write('#AQID\n'.bytes) // #123\n
+            inputPipe.write('$AQID\n'.bytes) // #123\n
         then:
             outputReader.readLine() == '!Binary message cannot be consumed'
     }
@@ -224,7 +243,7 @@ class StreamsChannelSpec extends Specification {
             channel.errorConsumer = errorConsumer
             channel.open()
         when:
-            inputPipe.write('#AQID\n'.bytes) // 3 bytes that is [1,2,3]
+            inputPipe.write('$AQID\n'.bytes) // 3 bytes that is [1,2,3]
         then:
             errorConsumer.await()
             FatalError errorReceived = errorConsumer.errorReceived
