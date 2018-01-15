@@ -41,17 +41,10 @@ public interface MessageChannel {
 
     /**
      * Exceeding the maximum size either during pushing messages or receiving them will close the
-     * channel and report error
+     * channel and report error. This property is also used when sending errors - first for trimming the error messages and second for validating size of error message on the receiver.
      *
      * @param characters Number of characters
      */
     void setTextMessageMaximumSize(int characters);
-
-    /**
-     * Error messages longer than given number of characters will be shorten to avoid generating another error
-     *
-     * @param characters Number of characters
-     */
-    void setErrorMessageCutOffSize(int characters);
 
 }

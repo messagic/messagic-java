@@ -62,6 +62,13 @@ class StreamsChannelSpec extends Specification {
             outputReader.readLine() == '$AQID'
     }
 
+    void 'should send empty binary message'() {
+        when:
+            channel.send(new byte[0])
+        then:
+            outputReader.readLine() == '$'
+    }
+
     @Unroll
     void 'should parse encoded text message "#inputString" and pass it to consumer as "#expectedMessage"'() {
         given:
@@ -95,10 +102,14 @@ class StreamsChannelSpec extends Specification {
             }
             channel.open()
         when:
-            inputPipe.write('$AQID\n'.bytes) // #123\n
+            inputPipe.write(messageAsString.bytes)
         then:
             latch.await(2, TimeUnit.SECONDS)
-            messageReceived == [1, 2, 3] as byte[]
+            messageReceived == decoded as byte[]
+        where:
+            messageAsString || decoded
+            '$AQID\n'       || [1, 2, 3]
+            '$\n'           || []
     }
 
     void 'should send error to sender when binary message cannot be parsed'() {
@@ -183,13 +194,13 @@ class StreamsChannelSpec extends Specification {
             outputReader.readLine() == '!null'
     }
 
-    void 'should limit number of characters for error message to errorMessageCutOffSize'() {
+    void 'should limit number of characters for error message to textMessageMaximumSize'() {
         given:
             CountDownLatch latch = new CountDownLatch(1)
-            channel.errorMessageCutOffSize = 4;
+            channel.textMessageMaximumSize = 20;
             channel.textMessageConsumer = { msg ->
                 if (msg == 'messageCausingError') {
-                    throw new RuntimeException('very long message')
+                    throw new RuntimeException('a very very very very very very long message')
                 } else {
                     latch.countDown()
                 }
@@ -200,7 +211,7 @@ class StreamsChannelSpec extends Specification {
             inputPipe.write('other\n'.bytes)
         then:
             latch.await(2, TimeUnit.SECONDS)
-            outputReader.readLine() == '!very'
+            outputReader.readLine() == '!a very very very ver'
     }
 
     void 'should parse error'() {
@@ -209,13 +220,17 @@ class StreamsChannelSpec extends Specification {
             channel.errorConsumer = errorConsumer
             channel.open()
         when:
-            inputPipe.write('!Some error\n'.bytes)
+            inputPipe.write(messageAsString.bytes)
         then:
             errorConsumer.await()
             FatalError errorReceived = errorConsumer.errorReceived
             errorReceived.isPeerError()
-            errorReceived.message() == 'Some error'
+            errorReceived.message() == expectedMessage
             !errorReceived.isPeerNotReachable()
+        where:
+            messageAsString || expectedMessage
+            '!Some error\n' || 'Some error'
+            '!\n'           || ''
     }
 
     void 'when could not read from input stream then PeerNotReachable error should be reported'() {

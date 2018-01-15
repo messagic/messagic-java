@@ -49,7 +49,6 @@ public class Streams {
         private InputStreamDecoder decoder;
         private int binaryMessageMaximumSize = 8192;
         private int textMessageMaximumSize = 8192;
-        private int errorMessageCutOffSize = 256;
         private Consumer<String> decodingErrorConsumer = this::sendError;
 
         @Override
@@ -60,11 +59,6 @@ public class Streams {
         @Override
         public void setTextMessageMaximumSize(int characters) {
             this.textMessageMaximumSize = characters;
-        }
-
-        @Override
-        public void setErrorMessageCutOffSize(int characters) {
-            this.errorMessageCutOffSize = characters;
         }
 
         @Override
@@ -152,7 +146,7 @@ public class Streams {
             try {
                 output.write('!');
                 String errorMessage = Optional.ofNullable(error).orElse("null");
-                errorMessage = errorMessage.substring(0, Math.min(errorMessageCutOffSize, errorMessage.length()));
+                errorMessage = errorMessage.substring(0, Math.min(textMessageMaximumSize, errorMessage.length()));
                 output.write(errorMessage.getBytes());
                 output.write('\n');
             } catch (IOException e) {
