@@ -230,12 +230,12 @@ class StreamsChannelSpec extends Specification {
             errorReceived.message() == 'Payload of received error message exceeded maximum size'
     }
 
-    class ErrorConsumerMock implements Consumer<FatalError> {
+    private class ErrorConsumerMock implements Consumer<FatalError> {
 
-        FatalError errorReceived = null
-        final CountDownLatch latch
+        private FatalError errorReceived = null
+        private final CountDownLatch latch
 
-        ErrorConsumerMock() {
+        private ErrorConsumerMock() {
             this.latch = new CountDownLatch(1)
         }
 
