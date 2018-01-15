@@ -1,7 +1,9 @@
 package com.github.jacekolszak.messagic.streams
 
+import com.github.jacekolszak.messagic.ChannelAlreadyOpenException
 import com.github.jacekolszak.messagic.FatalError
 import com.github.jacekolszak.messagic.MessageChannel
+import com.github.jacekolszak.messagic.NotOpenChannelException
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Timeout
@@ -29,6 +31,8 @@ class StreamsChannelSpec extends Specification {
     }
 
     void 'should send text message to stream'() {
+        given:
+            channel.open()
         when:
             channel.send('textMessage')
         then:
@@ -36,14 +40,43 @@ class StreamsChannelSpec extends Specification {
     }
 
     void 'should send empty text message to stream'() {
+        given:
+            channel.open()
         when:
             channel.send('')
         then:
             outputReader.readLine() == ''
     }
 
+    void 'cannot send text message without opening the channel'() {
+        when:
+            channel.send('this message will not be delivered')
+        then:
+            NotOpenChannelException e = thrown(NotOpenChannelException)
+            e.message == 'Execute open() before sending any message'
+    }
+
+    void 'cannot send binary message without opening the channel'() {
+        when:
+            channel.send([1,2,3] as byte[])
+        then:
+            NotOpenChannelException e = thrown(NotOpenChannelException)
+            e.message == 'Execute open() before sending any message'
+    }
+
+    void 'cannot open channel two times'() {
+        given:
+            channel.open()
+        when:
+            channel.open()
+        then:
+            thrown(ChannelAlreadyOpenException)
+    }
+
     @Unroll
     void 'when send is executed, should encode text message "#message" as "#line\\n"'() {
+        given:
+            channel.open()
         when:
             channel.send(message)
         then:
@@ -56,6 +89,8 @@ class StreamsChannelSpec extends Specification {
     }
 
     void 'binary messages should be encoded using base64 with "$" character as a prefix and new line in the end'() {
+        given:
+            channel.open()
         when:
             channel.send([1, 2, 3] as byte[])
         then:
@@ -63,6 +98,8 @@ class StreamsChannelSpec extends Specification {
     }
 
     void 'should send empty binary message'() {
+        given:
+            channel.open()
         when:
             channel.send(new byte[0])
         then:
