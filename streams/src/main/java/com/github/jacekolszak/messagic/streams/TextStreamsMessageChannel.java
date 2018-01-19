@@ -11,16 +11,26 @@ public class TextStreamsMessageChannel implements MessageChannel {
 
     private final InputPipe input;
     private final OutputPipe output;
+    private final TextStreamsLifecycle lifecycle;
     private final TextStreamsMessageListeners messageConsumers = new TextStreamsMessageListeners();
 
     public TextStreamsMessageChannel(InputStream input, OutputStream output) {
         this.input = new InputPipe(input, messageConsumers);
         this.output = new OutputPipe(output);
+        this.lifecycle = new TextStreamsLifecycle(this,
+                this.input::start,
+                () -> {
+                    try {
+                        this.input.stop();
+                    } finally {
+                        this.output.stop();
+                    }
+                });
     }
 
     @Override
     public Lifecycle lifecycle() {
-        return null;
+        return lifecycle;
     }
 
     @Override
@@ -34,7 +44,7 @@ public class TextStreamsMessageChannel implements MessageChannel {
     }
 
     public void start(Limits limits) {
-        input.start();
+        lifecycle.start();
     }
 
     @Override
@@ -49,11 +59,7 @@ public class TextStreamsMessageChannel implements MessageChannel {
 
     @Override
     public void stop() {
-        try {
-            input.stop();
-        } finally {
-            output.stop();
-        }
+        lifecycle.stop();
     }
 
 }
