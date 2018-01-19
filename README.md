@@ -6,10 +6,10 @@ Java implementation of [Messagic](https://github.com/jacekolszak/messagic), a hi
 ## Streams implementation
 
 ```Java
-MessageChannel channel = Streams.channel(System.in, System.out);
-channel.setTextMessageConsumer( msg -> {
+MessageChannel channel = new TextStreamsMessageChannel(System.in, System.out);
+channel.messageListeners().addTextMessageListener(msg -> {
     ...
 });
-channel.open();
+channel.start();
 channel.send("Hello");
 ```
