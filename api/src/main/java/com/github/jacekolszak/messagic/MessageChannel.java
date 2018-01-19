@@ -1,10 +1,7 @@
 package com.github.jacekolszak.messagic;
 
 /***
- * Please note that sending, starting and stopping channel is asynchronous, ie. does not block the current thread until it is done.
- *
- * If implementation of this class can't send the message then channel is closed (and StoppedEvent is published)
- *
+ * Please note that sending messages or starting and stopping the channel is asynchronous, ie. does not block the current thread until it is done.
  */
 public interface MessageChannel {
 
@@ -23,7 +20,7 @@ public interface MessageChannel {
 
     /**
      * Once stopped no new messages can be send and no incoming messages will be read. Implementation may close the socket, stream or whatever.
-     * After successful stop StoppedEvent is published.
+     * After successful stop StoppedEvent is published. Running this method when MessageChannel is not started has no effect.
      */
     void stop();
 

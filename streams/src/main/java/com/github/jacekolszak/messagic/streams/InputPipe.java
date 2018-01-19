@@ -35,7 +35,9 @@ class InputPipe {
 
     public void stop() {
         stopped = true;
-        thread.interrupt();
+        if (thread != null) {
+            thread.interrupt();
+        }
     }
 
 }
