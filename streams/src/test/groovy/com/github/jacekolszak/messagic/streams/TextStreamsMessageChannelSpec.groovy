@@ -5,7 +5,8 @@ import spock.lang.Subject
 import spock.lang.Timeout
 import spock.lang.Unroll
 
-@Timeout(15)
+
+@Timeout(5)
 class TextStreamsMessageChannelSpec extends Specification {
 
     private final PipedInputStream input = new PipedInputStream()
@@ -94,7 +95,7 @@ class TextStreamsMessageChannelSpec extends Specification {
     @Unroll
     void 'should read encoded text message "#inputString" from input stream and notify listener with "#expectedMessage"'() {
         given:
-            ConsumeOneMessage<String> listener = new ConsumeOneMessage<>()
+            ConsumeOneMessage listener = new ConsumeOneMessage()
             channel.messageListeners().addTextMessageListener(listener)
             channel.start()
         when:
@@ -112,7 +113,7 @@ class TextStreamsMessageChannelSpec extends Specification {
     @Unroll
     void 'should read encoded binary message "#inputString" from input stream and notify listener with "#expectedMessage"'() {
         given:
-            ConsumeOneMessage<byte[]> listener = new ConsumeOneMessage<>()
+            ConsumeOneMessage listener = new ConsumeOneMessage()
             channel.messageListeners().addBinaryMessageListener(listener)
             channel.start()
         when:
@@ -126,56 +127,97 @@ class TextStreamsMessageChannelSpec extends Specification {
     }
 
     @Unroll
+    void 'should read many messages in sequence they arrived'() {
+        given:
+            ConsumeManyMessages listener = new ConsumeManyMessages(2)
+            channel.messageListeners().addTextMessageListener(listener)
+            channel.start()
+        when:
+            writeToInput('1')
+            writeToInput('2')
+        then:
+            listener.messages() == ['1', '2']
+    }
+
+    void 'after stop() no new incoming messages are published to listeners'() {
+        given:
+            ConsumeOneMessage listener = new ConsumeOneMessage()
+            channel.messageListeners().addTextMessageListener(listener)
+            channel.start()
+        when:
+            channel.stop()
+            writeTextMessageToInput()
+        then:
+            Thread.sleep(1000) // TODO
+            !listener.messageReceived()
+    }
+
+    void 'after stop() no new outgoing messages are sent'() {
+        given:
+            channel.start()
+        when:
+            channel.stop()
+            channel.send('afterStop')
+        then:
+            Thread.sleep(1000) // TODO
+            outputPipe.available() == 0
+    }
+
+    @Unroll
     void 'should notify text message listeners in sequence based on the order they were registered'() {
         given:
-            List<AwaitingConsumer<String>> executionOrder = []
-            AwaitingConsumer<String> first = new AwaitingConsumer<>({ executionOrder << it })
-            AwaitingConsumer<String> last = new AwaitingConsumer<>({ executionOrder << it })
+            List<AwaitingConsumer> executionOrder = []
+            AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
+            AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
             channel.messageListeners().addTextMessageListener(first)
             channel.messageListeners().addTextMessageListener(last)
             channel.start()
         when:
-            writeTextMessageToInputPipe()
+            writeTextMessageToInput()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
             executionOrder == [first, last]
     }
 
-    private writeTextMessageToInputPipe() {
-        inputPipe.write('message\n'.bytes)
+    private writeTextMessageToInput() {
+        writeToInput("message")
+    }
+
+    private writeToInput(String textMessage) {
+        inputPipe.write("$textMessage\n".bytes)
     }
 
     @Unroll
     void 'should notify binary message listeners in sequence based on the order they were registered'() {
         given:
-            List<AwaitingConsumer<byte[]>> executionOrder = []
-            AwaitingConsumer<byte[]> first = new AwaitingConsumer<>({ executionOrder << it })
-            AwaitingConsumer<byte[]> last = new AwaitingConsumer<>({ executionOrder << it })
+            List<AwaitingConsumer> executionOrder = []
+            AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
+            AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
             channel.messageListeners().addBinaryMessageListener(first)
             channel.messageListeners().addBinaryMessageListener(last)
             channel.start()
         when:
-            writeBinaryMessageToInputPipe()
+            writeBinaryMessageToInput()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
             executionOrder == [first, last]
     }
 
-    private writeBinaryMessageToInputPipe() {
+    private writeBinaryMessageToInput() {
         inputPipe.write('$AQID\n'.bytes)
     }
 
     void 'all text message listeners should be executed even when some listener thrown exception'() {
         given:
-            AwaitingConsumer<String> first = new AwaitingConsumer<>({ throw new RuntimeException('Deliberate exception') })
-            AwaitingConsumer<String> last = new AwaitingConsumer<>({})
+            AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
+            AwaitingConsumer last = new AwaitingConsumer({})
             channel.messageListeners().addTextMessageListener(first)
             channel.messageListeners().addTextMessageListener(last)
             channel.start()
         when:
-            writeTextMessageToInputPipe()
+            writeTextMessageToInput()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
@@ -183,13 +225,13 @@ class TextStreamsMessageChannelSpec extends Specification {
 
     void 'all binary message listeners should be executed even when some listener thrown exception'() {
         given:
-            AwaitingConsumer<byte[]> first = new AwaitingConsumer<>({ throw new RuntimeException('Deliberate exception') })
-            AwaitingConsumer<byte[]> last = new AwaitingConsumer<>({})
+            AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
+            AwaitingConsumer last = new AwaitingConsumer({})
             channel.messageListeners().addBinaryMessageListener(first)
             channel.messageListeners().addBinaryMessageListener(last)
             channel.start()
         when:
-            writeBinaryMessageToInputPipe()
+            writeBinaryMessageToInput()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
@@ -197,14 +239,14 @@ class TextStreamsMessageChannelSpec extends Specification {
 
     void 'removed text listeners does not receive notifications anymore'() {
         given:
-            ConsumeOneMessage<String> first = new ConsumeOneMessage<>()
-            AwaitingConsumer<String> last = new AwaitingConsumer<>({})
+            ConsumeOneMessage first = new ConsumeOneMessage()
+            AwaitingConsumer last = new AwaitingConsumer({})
             channel.messageListeners().addTextMessageListener(first)
             channel.messageListeners().addTextMessageListener(last)
             channel.start()
         when:
             channel.messageListeners().removeTextMessageListener(first)
-            writeTextMessageToInputPipe()
+            writeTextMessageToInput()
         then:
             last.waitUntilExecuted()
             !first.messageReceived()
@@ -212,14 +254,14 @@ class TextStreamsMessageChannelSpec extends Specification {
 
     void 'removed binary listeners does not receive notifications anymore'() {
         given:
-            ConsumeOneMessage<byte[]> first = new ConsumeOneMessage<>()
-            AwaitingConsumer<byte[]> last = new AwaitingConsumer<>({})
+            ConsumeOneMessage first = new ConsumeOneMessage()
+            AwaitingConsumer last = new AwaitingConsumer({})
             channel.messageListeners().addBinaryMessageListener(first)
             channel.messageListeners().addBinaryMessageListener(last)
             channel.start()
         when:
             channel.messageListeners().removeBinaryMessageListener(first)
-            writeBinaryMessageToInputPipe()
+            writeBinaryMessageToInput()
         then:
             last.waitUntilExecuted()
             !first.messageReceived()

@@ -4,7 +4,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
 
-class AwaitingConsumer<T> implements Consumer<T> {
+class AwaitingConsumer implements Consumer {
 
     private final CountDownLatch latch = new CountDownLatch(1)
     private final Consumer<AwaitingConsumer> consumer
@@ -14,7 +14,7 @@ class AwaitingConsumer<T> implements Consumer<T> {
     }
 
     @Override
-    void accept(T t) {
+    void accept(Object t) {
         try {
             consumer.accept(this)
         } finally {

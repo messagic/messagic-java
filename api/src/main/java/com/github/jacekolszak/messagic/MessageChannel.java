@@ -22,7 +22,8 @@ public interface MessageChannel {
     void send(byte[] binaryMessage);
 
     /**
-     * Once stopped no new messages can be send and no incoming messages will be accepted. After successful stop StoppedEvent is published.
+     * Once stopped no new messages can be send and no incoming messages will be read. Implementation may close the socket, stream or whatever.
+     * After successful stop StoppedEvent is published.
      */
     void stop();
 

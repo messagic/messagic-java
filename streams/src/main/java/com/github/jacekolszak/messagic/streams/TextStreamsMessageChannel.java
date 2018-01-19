@@ -49,7 +49,11 @@ public class TextStreamsMessageChannel implements MessageChannel {
 
     @Override
     public void stop() {
-        input.stop();
+        try {
+            input.stop();
+        } finally {
+            output.stop();
+        }
     }
 
 }
