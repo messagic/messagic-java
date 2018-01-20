@@ -1,6 +1,6 @@
 package com.github.jacekolszak.messagic.streams
 
-class TextStreamsPipedOutputStream extends PipedOutputStream {
+final class TextStreamsPipedOutputStream extends PipedOutputStream {
 
     private final PipedInputStream inputStream
 

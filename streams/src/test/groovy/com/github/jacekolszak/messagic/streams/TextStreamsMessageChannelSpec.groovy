@@ -8,7 +8,7 @@ import spock.lang.Timeout
 import spock.lang.Unroll
 
 @Timeout(5)
-class TextStreamsMessageChannelSpec extends Specification {
+final class TextStreamsMessageChannelSpec extends Specification {
 
     private final PipedInputStream input = new PipedInputStream()
     private final TextStreamsPipedOutputStream inputPipe = new TextStreamsPipedOutputStream(input)

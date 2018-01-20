@@ -3,7 +3,7 @@ package com.github.jacekolszak.messagic.streams
 import java.util.concurrent.CountDownLatch
 import java.util.function.Consumer
 
-class ConsumeOneMessage implements Consumer {
+final class ConsumeOneMessage implements Consumer {
 
     private final CountDownLatch latch = new CountDownLatch(1)
     private Object message

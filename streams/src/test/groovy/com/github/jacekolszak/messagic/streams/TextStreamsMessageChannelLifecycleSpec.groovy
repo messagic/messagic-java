@@ -5,7 +5,7 @@ import com.github.jacekolszak.messagic.StoppedEvent
 import spock.lang.Specification
 import spock.lang.Subject
 
-class TextStreamsMessageChannelLifecycleSpec extends Specification {
+final class TextStreamsMessageChannelLifecycleSpec extends Specification {
 
     private final TextStreamsPipedOutputStream inputPipe = new TextStreamsPipedOutputStream()
     private final PipedInputStream input = inputPipe.inputStream()
