@@ -15,9 +15,9 @@ final class InputPipe {
     private Thread thread;
     private volatile boolean stopped;
 
-    InputPipe(InputStream input, Limits limits, MessagePublisher messagePublisher, Runnable onError) {
+    InputPipe(InputStream input, Limits limits, IncomingMessageListener incomingMessageListener, Runnable onError) {
         this.onError = onError;
-        this.messageStream = new MessageStream(input, limits, messagePublisher);
+        this.messageStream = new MessageStream(input, limits, incomingMessageListener);
     }
 
     void start() {

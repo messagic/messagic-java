@@ -7,11 +7,11 @@ import java.util.Base64;
 final class MessageStream {
 
     private final LimitedBuffer buffer;
-    private final MessagePublisher messagePublisher;
+    private final IncomingMessageListener incomingMessageListener;
 
-    MessageStream(InputStream input, Limits limits, MessagePublisher messagePublisher) {
+    MessageStream(InputStream input, Limits limits, IncomingMessageListener incomingMessageListener) {
         this.buffer = new LimitedBuffer(input, limits.binaryMessageMaximumSize, limits.textMessageMaximumSize);
-        this.messagePublisher = messagePublisher;
+        this.incomingMessageListener = incomingMessageListener;
     }
 
     void readMessage() throws IOException {
@@ -22,12 +22,12 @@ final class MessageStream {
                 publishDecodedMessage(message);
                 break;
             case '\n':
-                messagePublisher.publish("");
+                incomingMessageListener.textMessageFound("");
                 break;
             default:
                 message = buffer.readTextLine();
                 String textMessage = (messageTypeOrFistCharacter != '#') ? (char) messageTypeOrFistCharacter + new String(message) : new String(message);
-                messagePublisher.publish(textMessage);
+                incomingMessageListener.textMessageFound(textMessage);
         }
     }
 
@@ -38,7 +38,7 @@ final class MessageStream {
         } catch (IllegalArgumentException e) {
             return;
         }
-        messagePublisher.publish(decoded);
+        incomingMessageListener.binaryMessageFound(decoded);
     }
 
 }

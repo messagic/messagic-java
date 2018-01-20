@@ -7,7 +7,7 @@ Java implementation of [Messagic](https://github.com/jacekolszak/messagic), a hi
 
 ```Java
 MessageChannel channel = new TextStreamsMessageChannel(System.in, System.out);
-channel.incomingStream().addTextMessageListener(msg -> {
+channel.events().addListener(TextMessage.class, msg -> {
     ...
 });
 channel.start();

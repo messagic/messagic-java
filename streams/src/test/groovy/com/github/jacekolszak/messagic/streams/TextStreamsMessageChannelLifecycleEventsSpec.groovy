@@ -5,7 +5,7 @@ import com.github.jacekolszak.messagic.StoppedEvent
 import spock.lang.Specification
 import spock.lang.Subject
 
-final class TextStreamsMessageChannelLifecycleSpec extends Specification {
+final class TextStreamsMessageChannelLifecycleEventsSpec extends Specification {
 
     private final TextStreamsPipedOutputStream inputPipe = new TextStreamsPipedOutputStream()
     private final PipedInputStream input = inputPipe.inputStream()
@@ -18,23 +18,23 @@ final class TextStreamsMessageChannelLifecycleSpec extends Specification {
         channel.stop()
     }
 
-    void 'after start should notify lifecycle listener with StartedEvent'() {
+    void 'after start should notify StartedEvent listener'() {
         given:
             ConsumeOneMessage listener = new ConsumeOneMessage()
-            channel.lifecycle().addEventListener(StartedEvent, listener)
+            channel.events().addListener(StartedEvent, listener)
         when:
             channel.start()
         then:
             listener.message() instanceof StartedEvent
     }
 
-    void 'should notify StartedEvent lifecycle listeners in sequence based on the order they were registered'() {
+    void 'should notify StartedEvent listeners in sequence based on the order they were registered'() {
         given:
             List<AwaitingConsumer> executionOrder = []
             AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
             AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
-            channel.lifecycle().addEventListener(StartedEvent, first)
-            channel.lifecycle().addEventListener(StartedEvent, last)
+            channel.events().addListener(StartedEvent, first)
+            channel.events().addListener(StartedEvent, last)
         when:
             channel.start()
         then:
@@ -43,12 +43,12 @@ final class TextStreamsMessageChannelLifecycleSpec extends Specification {
             executionOrder == [first, last]
     }
 
-    void 'all StartedEvent lifecycle listeners should be executed even though some listener thrown exception'() {
+    void 'all StartedEvent listeners should be executed even though some listener thrown exception'() {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.lifecycle().addEventListener(StartedEvent, first)
-            channel.lifecycle().addEventListener(StartedEvent, last)
+            channel.events().addListener(StartedEvent, first)
+            channel.events().addListener(StartedEvent, last)
         when:
             channel.start()
         then:
@@ -57,10 +57,10 @@ final class TextStreamsMessageChannelLifecycleSpec extends Specification {
     }
 
 
-    void 'after stop should notify lifecycle listener with StoppedEvent'() {
+    void 'after stop should notify StoppedEvent listener'() {
         given:
             ConsumeOneMessage listener = new ConsumeOneMessage()
-            channel.lifecycle().addEventListener(StoppedEvent, listener)
+            channel.events().addListener(StoppedEvent, listener)
             channel.start()
         when:
             channel.stop()
@@ -68,13 +68,13 @@ final class TextStreamsMessageChannelLifecycleSpec extends Specification {
             listener.message() instanceof StoppedEvent
     }
 
-    void 'should notify StoppedEvent lifecycle listeners in sequence based on the order they were registered'() {
+    void 'should notify StoppedEvent listeners in sequence based on the order they were registered'() {
         given:
             List<AwaitingConsumer> executionOrder = []
             AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
             AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
-            channel.lifecycle().addEventListener(StoppedEvent, first)
-            channel.lifecycle().addEventListener(StoppedEvent, last)
+            channel.events().addListener(StoppedEvent, first)
+            channel.events().addListener(StoppedEvent, last)
             channel.start()
         when:
             channel.stop()
@@ -84,12 +84,12 @@ final class TextStreamsMessageChannelLifecycleSpec extends Specification {
             executionOrder == [first, last]
     }
 
-    void 'all StoppedEvent lifecycle listeners should be executed even though some listener thrown exception'() {
+    void 'all StoppedEvent listeners should be executed even though some listener thrown exception'() {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.lifecycle().addEventListener(StoppedEvent, first)
-            channel.lifecycle().addEventListener(StoppedEvent, last)
+            channel.events().addListener(StoppedEvent, first)
+            channel.events().addListener(StoppedEvent, last)
             channel.start()
         when:
             channel.stop()
@@ -99,29 +99,29 @@ final class TextStreamsMessageChannelLifecycleSpec extends Specification {
     }
 
 
-    void 'removed StartedEvent lifecycle listeners does not receive notifications'() {
+    void 'removed StartedEvent listeners does not receive notifications'() {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.lifecycle().addEventListener(StartedEvent, first)
-            channel.lifecycle().addEventListener(StartedEvent, last)
+            channel.events().addListener(StartedEvent, first)
+            channel.events().addListener(StartedEvent, last)
         when:
-            channel.lifecycle().removeEventListener(StartedEvent, first)
+            channel.events().removeListener(StartedEvent, first)
             channel.start()
         then:
             last.waitUntilExecuted()
             !first.messageReceived()
     }
 
-    void 'removed StoppedEvent lifecycle listeners does not receive notifications'() {
+    void 'removed StoppedEvent listeners does not receive notifications'() {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.lifecycle().addEventListener(StoppedEvent, first)
-            channel.lifecycle().addEventListener(StoppedEvent, last)
+            channel.events().addListener(StoppedEvent, first)
+            channel.events().addListener(StoppedEvent, last)
             channel.start()
         when:
-            channel.lifecycle().removeEventListener(StoppedEvent, first)
+            channel.events().removeListener(StoppedEvent, first)
             channel.stop()
         then:
             last.waitUntilExecuted()

@@ -2,13 +2,11 @@ package com.github.jacekolszak.messagic;
 
 /***
  * Please note that sending messages or starting and stopping the channel is asynchronous, ie. does not block the current thread until it is done.
- * All message and lifecycle listeners are run asynchronously in sequential manner.
+ * All message and events listeners are run asynchronously in sequential manner.
  */
 public interface MessageChannel {
 
-    Lifecycle lifecycle();
-
-    IncomingStream incomingStream();
+    ChannelEvents events();
 
     /**
      * Once started channel allows to send messages and accepts incoming ones. After successful start StartedEvent is published.

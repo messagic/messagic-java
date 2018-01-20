@@ -3,19 +3,14 @@ package com.github.jacekolszak.messagic.streams;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.github.jacekolszak.messagic.IncomingStream;
-import com.github.jacekolszak.messagic.Lifecycle;
+import com.github.jacekolszak.messagic.ChannelEvents;
 import com.github.jacekolszak.messagic.MessageChannel;
-import com.github.jacekolszak.messagic.StartedEvent;
-import com.github.jacekolszak.messagic.StoppedEvent;
 
 public final class TextStreamsMessageChannel implements MessageChannel {
 
     private final InputPipe input;
     private final OutputPipe output;
-    private final TextStreamsIncomingStream incomingStream;
-    private final ChannelDispatchThread dispatchThread;
-    private final TextStreamsLifecycle lifecycle;
+    private final ChannelEventsImpl events;
 
     private State state = State.NEW;
 
@@ -24,31 +19,23 @@ public final class TextStreamsMessageChannel implements MessageChannel {
     }
 
     public TextStreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
-        this.dispatchThread = new ChannelDispatchThread();
-        this.incomingStream = new TextStreamsIncomingStream(dispatchThread);
-        this.input = new InputPipe(input, limits, incomingStream, this::stop);
+        this.events = new ChannelEventsImpl(this);
+        this.input = new InputPipe(input, limits, events, this::stop);
         this.output = new OutputPipe(output, limits, this::stop);
-        this.lifecycle = new TextStreamsLifecycle(dispatchThread);
     }
 
     @Override
-    public Lifecycle lifecycle() {
-        return lifecycle;
-    }
-
-    @Override
-    public IncomingStream incomingStream() {
-        return incomingStream;
+    public ChannelEvents events() {
+        return events;
     }
 
     @Override
     public void start() {
         if (state == State.NEW) {
-            dispatchThread.start();
             input.start();
             state = State.STARTED;
-            StartedEvent event = () -> this;
-            lifecycle.notify(event);
+            events.start();
+            events.notifyStarted();
         } else if (state == State.STOPPED) {
             throw new IllegalStateException("Can't start channel which was stopped before");
         }
@@ -73,9 +60,8 @@ public final class TextStreamsMessageChannel implements MessageChannel {
                 this.output.stop();
             }
             state = State.STOPPED;
-            StoppedEvent event = () -> this;
-            lifecycle.notify(event);
-            dispatchThread.stop();
+            events.notifyStopped();
+            events.stop();
         }
     }
 

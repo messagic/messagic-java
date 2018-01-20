@@ -1,6 +1,6 @@
 package com.github.jacekolszak.messagic;
 
-public interface LifecycleEvent {
+public interface Event {
 
     MessageChannel channel();
 
