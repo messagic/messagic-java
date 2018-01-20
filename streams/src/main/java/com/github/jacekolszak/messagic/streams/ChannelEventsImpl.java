@@ -1,7 +1,5 @@
 package com.github.jacekolszak.messagic.streams;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 import com.github.jacekolszak.messagic.BinaryMessage;
@@ -16,16 +14,13 @@ import com.github.jacekolszak.messagic.TextMessage;
 final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener {
 
     private final ChannelDispatchThread dispatchThread;
-    private final List<Consumer<Started>> startedListeners = new ArrayList<>();
-    private final List<Consumer<Stopped>> stoppedListeners = new ArrayList<>();
-    private final List<Consumer<TextMessage>> textMessageListeners = new ArrayList<>();
-    private final List<Consumer<BinaryMessage>> binaryMessageListeners = new ArrayList<>();
-    private final List<Consumer<Error>> errorListeners = new ArrayList<>();
+    private final ListenersSet listenersSet;
     private final MessageChannel channel;
 
     ChannelEventsImpl(MessageChannel channel) {
         this.channel = channel;
         this.dispatchThread = new ChannelDispatchThread();
+        this.listenersSet = new ListenersSet();
     }
 
     void start() {
@@ -38,30 +33,12 @@ final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener 
 
     @Override
     public <T extends Event> void addListener(Class<T> eventClass, Consumer<T> listener) {
-        if (eventClass.equals(Started.class)) {
-            startedListeners.add((Consumer<Started>) listener);
-        } else if (eventClass.equals(Stopped.class)) {
-            stoppedListeners.add((Consumer<Stopped>) listener);
-        } else if (eventClass.equals(TextMessage.class)) {
-            textMessageListeners.add((Consumer<TextMessage>) listener);
-        } else if (eventClass.equals(BinaryMessage.class)) {
-            binaryMessageListeners.add((Consumer<BinaryMessage>) listener);
-        } else if (eventClass.equals(Error.class)) {
-            errorListeners.add((Consumer<Error>) listener);
-        }
+        listenersSet.add(eventClass, listener);
     }
 
     @Override
     public <T extends Event> void removeListener(Class<T> eventClass, Consumer<T> listener) {
-        if (eventClass.equals(Started.class)) {
-            startedListeners.remove(listener);
-        } else if (eventClass.equals(Stopped.class)) {
-            stoppedListeners.remove(listener);
-        } else if (eventClass.equals(TextMessage.class)) {
-            textMessageListeners.remove(listener);
-        } else if (eventClass.equals(BinaryMessage.class)) {
-            binaryMessageListeners.remove(listener);
-        }
+        listenersSet.remove(eventClass, listener);
     }
 
     void notifyStarted() {
@@ -70,9 +47,10 @@ final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener 
     }
 
     private void notify(Started event) {
-        for (Consumer<Started> listener : startedListeners) {
-            dispatchThread.execute(() -> listener.accept(event));
-        }
+        listenersSet.listenersOfType(Started.class)
+                .forEach(listener ->
+                        dispatchThread.execute(() -> listener.accept(event))
+                );
     }
 
     void notifyStopped() {
@@ -81,9 +59,10 @@ final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener 
     }
 
     private void notify(Stopped event) {
-        for (Consumer<Stopped> listener : stoppedListeners) {
-            dispatchThread.execute(() -> listener.accept(event));
-        }
+        listenersSet.listenersOfType(Stopped.class)
+                .forEach(listener ->
+                        dispatchThread.execute(() -> listener.accept(event))
+                );
     }
 
     @Override
@@ -93,9 +72,10 @@ final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener 
     }
 
     private void notify(TextMessage event) {
-        for (Consumer<TextMessage> listener : textMessageListeners) {
-            dispatchThread.execute(() -> listener.accept(event));
-        }
+        listenersSet.listenersOfType(TextMessage.class)
+                .forEach(listener ->
+                        dispatchThread.execute(() -> listener.accept(event))
+                );
     }
 
     @Override
@@ -105,9 +85,10 @@ final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener 
     }
 
     private void notify(BinaryMessage event) {
-        for (Consumer<BinaryMessage> listener : binaryMessageListeners) {
-            dispatchThread.execute(() -> listener.accept(event));
-        }
+        listenersSet.listenersOfType(BinaryMessage.class)
+                .forEach(listener ->
+                        dispatchThread.execute(() -> listener.accept(event))
+                );
     }
 
     public void notifyError(Exception exception) {
@@ -116,9 +97,10 @@ final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener 
     }
 
     private void notify(Error event) {
-        for (Consumer<Error> listener : errorListeners) {
-            dispatchThread.execute(() -> listener.accept(event));
-        }
+        listenersSet.listenersOfType(Error.class)
+                .forEach(listener ->
+                        dispatchThread.execute(() -> listener.accept(event))
+                );
     }
 
     private class TextMessageImpl implements TextMessage {
