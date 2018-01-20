@@ -3,7 +3,7 @@ Java implementation of [Messagic](https://github.com/jacekolszak/messagic), a hi
 
 [![CircleCI](https://circleci.com/gh/jacekolszak/messagic-java.svg?style=svg)](https://circleci.com/gh/jacekolszak/messagic-java)
 
-## Streams implementation
+## Text Streams implementation - simple text-based protocol using Input and OutputStreams
 
 ```Java
 MessageChannel channel = new TextStreamsMessageChannel(System.in, System.out);
