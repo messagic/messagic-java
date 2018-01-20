@@ -13,6 +13,10 @@ class AwaitingConsumer implements Consumer {
         this.consumer = consumer
     }
 
+    AwaitingConsumer() {
+        this({})
+    }
+
     @Override
     void accept(Object t) {
         try {

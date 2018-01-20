@@ -7,14 +7,13 @@ import spock.lang.Subject
 import spock.lang.Timeout
 import spock.lang.Unroll
 
-
 @Timeout(5)
 class TextStreamsMessageChannelSpec extends Specification {
 
     private final PipedInputStream input = new PipedInputStream()
-    private final PipedOutputStream inputPipe = new PipedOutputStream(input)
+    private final TextStreamsPipedOutputStream inputPipe = new TextStreamsPipedOutputStream(input)
     private final PipedInputStream outputPipe = new PipedInputStream()
-    private final PipedOutputStream output = new PipedOutputStream(outputPipe)
+    private final TextStreamsPipedOutputStream output = new TextStreamsPipedOutputStream(outputPipe)
     private final InputStreamReader outputReader = new InputStreamReader(outputPipe)
 
     @Subject
@@ -135,8 +134,8 @@ class TextStreamsMessageChannelSpec extends Specification {
             channel.incomingStream().addTextMessageListener(listener)
             channel.start()
         when:
-            writeToInput('1')
-            writeToInput('2')
+            inputPipe.writeTextMessage('1')
+            inputPipe.writeTextMessage('2')
         then:
             listener.messages() == ['1', '2']
     }
@@ -148,7 +147,7 @@ class TextStreamsMessageChannelSpec extends Specification {
             channel.start()
         when:
             channel.stop()
-            writeTextMessageToInput()
+            inputPipe.writeTextMessage()
         then:
             Thread.sleep(1000) // TODO
             !listener.messageReceived()
@@ -175,19 +174,11 @@ class TextStreamsMessageChannelSpec extends Specification {
             channel.incomingStream().addTextMessageListener(last)
             channel.start()
         when:
-            writeTextMessageToInput()
+            inputPipe.writeTextMessage()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
             executionOrder == [first, last]
-    }
-
-    private writeTextMessageToInput() {
-        writeToInput("message")
-    }
-
-    private writeToInput(String textMessage) {
-        inputPipe.write("$textMessage\n".bytes)
     }
 
     @Unroll
@@ -200,26 +191,22 @@ class TextStreamsMessageChannelSpec extends Specification {
             channel.incomingStream().addBinaryMessageListener(last)
             channel.start()
         when:
-            writeBinaryMessageToInput()
+            inputPipe.writeBinaryMessage()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
             executionOrder == [first, last]
     }
 
-    private writeBinaryMessageToInput() {
-        inputPipe.write('$AQID\n'.bytes)
-    }
-
     void 'all text message listeners should be executed even when some listener thrown exception'() {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
-            AwaitingConsumer last = new AwaitingConsumer({})
+            AwaitingConsumer last = new AwaitingConsumer()
             channel.incomingStream().addTextMessageListener(first)
             channel.incomingStream().addTextMessageListener(last)
             channel.start()
         when:
-            writeTextMessageToInput()
+            inputPipe.writeTextMessage()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
@@ -228,12 +215,12 @@ class TextStreamsMessageChannelSpec extends Specification {
     void 'all binary message listeners should be executed even when some listener thrown exception'() {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
-            AwaitingConsumer last = new AwaitingConsumer({})
+            AwaitingConsumer last = new AwaitingConsumer()
             channel.incomingStream().addBinaryMessageListener(first)
             channel.incomingStream().addBinaryMessageListener(last)
             channel.start()
         when:
-            writeBinaryMessageToInput()
+            inputPipe.writeBinaryMessage()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
@@ -242,13 +229,13 @@ class TextStreamsMessageChannelSpec extends Specification {
     void 'removed text listeners does not receive notifications anymore'() {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
-            AwaitingConsumer last = new AwaitingConsumer({})
+            AwaitingConsumer last = new AwaitingConsumer()
             channel.incomingStream().addTextMessageListener(first)
             channel.incomingStream().addTextMessageListener(last)
             channel.start()
         when:
             channel.incomingStream().removeTextMessageListener(first)
-            writeTextMessageToInput()
+            inputPipe.writeTextMessage()
         then:
             last.waitUntilExecuted()
             !first.messageReceived()
@@ -257,13 +244,13 @@ class TextStreamsMessageChannelSpec extends Specification {
     void 'removed binary listeners does not receive notifications anymore'() {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
-            AwaitingConsumer last = new AwaitingConsumer({})
+            AwaitingConsumer last = new AwaitingConsumer()
             channel.incomingStream().addBinaryMessageListener(first)
             channel.incomingStream().addBinaryMessageListener(last)
             channel.start()
         when:
             channel.incomingStream().removeBinaryMessageListener(first)
-            writeBinaryMessageToInput()
+            inputPipe.writeBinaryMessage()
         then:
             last.waitUntilExecuted()
             !first.messageReceived()
@@ -297,7 +284,7 @@ class TextStreamsMessageChannelSpec extends Specification {
     void 'all StartedEvent lifecycle listeners should be executed even though some listener thrown exception'() {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
-            AwaitingConsumer last = new AwaitingConsumer({})
+            AwaitingConsumer last = new AwaitingConsumer()
             channel.lifecycle().addEventListener(StartedEvent, first)
             channel.lifecycle().addEventListener(StartedEvent, last)
         when:
@@ -337,7 +324,7 @@ class TextStreamsMessageChannelSpec extends Specification {
     void 'all StoppedEvent lifecycle listeners should be executed even though some listener thrown exception'() {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
-            AwaitingConsumer last = new AwaitingConsumer({})
+            AwaitingConsumer last = new AwaitingConsumer()
             channel.lifecycle().addEventListener(StoppedEvent, first)
             channel.lifecycle().addEventListener(StoppedEvent, last)
             channel.start()
@@ -351,7 +338,7 @@ class TextStreamsMessageChannelSpec extends Specification {
     void 'removed StartedEvent lifecycle listeners does not receive notifications'() {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
-            AwaitingConsumer last = new AwaitingConsumer({})
+            AwaitingConsumer last = new AwaitingConsumer()
             channel.lifecycle().addEventListener(StartedEvent, first)
             channel.lifecycle().addEventListener(StartedEvent, last)
         when:
@@ -365,7 +352,7 @@ class TextStreamsMessageChannelSpec extends Specification {
     void 'removed StoppedEvent lifecycle listeners does not receive notifications'() {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
-            AwaitingConsumer last = new AwaitingConsumer({})
+            AwaitingConsumer last = new AwaitingConsumer()
             channel.lifecycle().addEventListener(StoppedEvent, first)
             channel.lifecycle().addEventListener(StoppedEvent, last)
             channel.start()
@@ -387,10 +374,9 @@ class TextStreamsMessageChannelSpec extends Specification {
             thrown(IllegalStateException)
     }
 
-
     void 'should close the channel when InputStream is closed'() {
         given:
-            AwaitingConsumer stoppedListener = new AwaitingConsumer({})
+            AwaitingConsumer stoppedListener = new AwaitingConsumer()
             channel.lifecycle().addEventListener(StoppedEvent, stoppedListener)
             channel.start()
         when:
@@ -401,7 +387,7 @@ class TextStreamsMessageChannelSpec extends Specification {
 
     void 'should close the channel when OutputStream is closed'() {
         given:
-            AwaitingConsumer stoppedListener = new AwaitingConsumer({})
+            AwaitingConsumer stoppedListener = new AwaitingConsumer()
             channel.lifecycle().addEventListener(StoppedEvent, stoppedListener)
             channel.start()
         when:

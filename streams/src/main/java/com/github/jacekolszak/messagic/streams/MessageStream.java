@@ -6,15 +6,11 @@ import java.util.Base64;
 
 class MessageStream {
 
-    private final Buffer buffer;
-    private final int binaryMessageMaximumSize;
-    private final int textMessageMaximumSize;
+    private final LimitedBuffer buffer;
     private final MessagePublisher messagePublisher;
 
-    MessageStream(InputStream input, int binaryMessageMaximumSize, int textMessageMaximumSize, MessagePublisher messagePublisher) {
-        this.buffer = new Buffer(input);
-        this.binaryMessageMaximumSize = binaryMessageMaximumSize;
-        this.textMessageMaximumSize = textMessageMaximumSize;
+    MessageStream(InputStream input, Limits limits, MessagePublisher messagePublisher) {
+        this.buffer = new LimitedBuffer(input, limits.binaryMessageMaximumSize, limits.textMessageMaximumSize);
         this.messagePublisher = messagePublisher;
     }
 
@@ -22,20 +18,14 @@ class MessageStream {
         int messageTypeOrFistCharacter = buffer.readByte();
         switch (messageTypeOrFistCharacter) {
             case '$':
-                byte[] message = buffer.readLine(binaryMessageMaximumSize);
-                if (message == null) {
-                    throw new IOException("Payload of received binary message exceeded maximum size");
-                }
+                byte[] message = buffer.readBinaryLine();
                 publishDecodedMessage(message);
                 break;
             case '\n':
                 messagePublisher.publish("");
                 break;
             default:
-                message = buffer.readLine(textMessageMaximumSize);
-                if (message == null) {
-                    throw new IOException("Payload of received text message exceeded maximum size");
-                }
+                message = buffer.readTextLine();
                 String textMessage = (messageTypeOrFistCharacter != '#') ? (char) messageTypeOrFistCharacter + new String(message) : new String(message);
                 messagePublisher.publish(textMessage);
         }

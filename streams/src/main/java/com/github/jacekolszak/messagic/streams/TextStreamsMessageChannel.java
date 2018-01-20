@@ -25,10 +25,14 @@ public class TextStreamsMessageChannel implements MessageChannel, Lifecycle {
     private State state = State.NEW;
 
     public TextStreamsMessageChannel(InputStream input, OutputStream output) {
+        this(input, output, new Limits());
+    }
+
+    public TextStreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
         this.dispatchThread = new ChannelDispatchThread();
         this.messageConsumers = new TextStreamsIncomingStream(dispatchThread);
-        this.input = new InputPipe(input, messageConsumers, this::stop);
-        this.output = new OutputPipe(output, this::stop);
+        this.input = new InputPipe(input, limits, messageConsumers, this::stop);
+        this.output = new OutputPipe(output, limits, this::stop);
     }
 
     @Override
@@ -43,10 +47,6 @@ public class TextStreamsMessageChannel implements MessageChannel, Lifecycle {
 
     @Override
     public void start() {
-        start(new Limits());
-    }
-
-    public void start(Limits limits) {
         if (state == State.NEW) {
             dispatchThread.start();
             input.start();

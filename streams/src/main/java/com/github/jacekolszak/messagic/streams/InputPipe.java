@@ -15,9 +15,9 @@ class InputPipe {
     private Thread thread;
     private volatile boolean stopped;
 
-    InputPipe(InputStream input, MessagePublisher messagePublisher, Runnable onError) {
+    InputPipe(InputStream input, Limits limits, MessagePublisher messagePublisher, Runnable onError) {
         this.onError = onError;
-        this.messageStream = new MessageStream(input, 1024, 1024, messagePublisher);
+        this.messageStream = new MessageStream(input, limits, messagePublisher);
     }
 
     void start() {
@@ -36,7 +36,7 @@ class InputPipe {
         thread.start();
     }
 
-    public void stop() {
+    void stop() {
         stopped = true;
         if (thread != null) {
             thread.interrupt();
