@@ -3,7 +3,7 @@ package com.github.jacekolszak.messagic.streams;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ChannelDispatchThread {
+class ChannelDispatchThread {
 
     private ExecutorService executor;
 
