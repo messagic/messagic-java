@@ -9,7 +9,7 @@ public interface MessageChannel {
     ChannelEvents events();
 
     /**
-     * Once started channel allows to send messages and accepts incoming ones. After successful start StartedEvent is published.
+     * Once started channel allows to send messages and accepts incoming ones. After successful start Started event is published.
      * Running this method when MessageChannel is already started has no effect. Running this method after channel was stopped will throw IllegalStateException
      */
     void start();
@@ -20,7 +20,7 @@ public interface MessageChannel {
 
     /**
      * Once stopped no new messages can be send and no incoming messages will be read. Implementation may close the socket, stream or whatever.
-     * After successful stop StoppedEvent is published. Running this method when MessageChannel is already stopped or not yet started has no effect.
+     * After successful stop Stopped event is published. Running this method when MessageChannel is already stopped or not yet started has no effect.
      */
     void stop();
 

@@ -1,7 +1,7 @@
 package com.github.jacekolszak.messagic.streams
 
-import com.github.jacekolszak.messagic.StartedEvent
-import com.github.jacekolszak.messagic.StoppedEvent
+import com.github.jacekolszak.messagic.Started
+import com.github.jacekolszak.messagic.Stopped
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -21,11 +21,11 @@ final class TextStreamsMessageChannelLifecycleEventsSpec extends Specification {
     void 'after start should notify StartedEvent listener'() {
         given:
             ConsumeOneMessage listener = new ConsumeOneMessage()
-            channel.events().addListener(StartedEvent, listener)
+            channel.events().addListener(Started, listener)
         when:
             channel.start()
         then:
-            listener.message() instanceof StartedEvent
+            listener.message() instanceof Started
     }
 
     void 'should notify StartedEvent listeners in sequence based on the order they were registered'() {
@@ -33,8 +33,8 @@ final class TextStreamsMessageChannelLifecycleEventsSpec extends Specification {
             List<AwaitingConsumer> executionOrder = []
             AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
             AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
-            channel.events().addListener(StartedEvent, first)
-            channel.events().addListener(StartedEvent, last)
+            channel.events().addListener(Started, first)
+            channel.events().addListener(Started, last)
         when:
             channel.start()
         then:
@@ -47,8 +47,8 @@ final class TextStreamsMessageChannelLifecycleEventsSpec extends Specification {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.events().addListener(StartedEvent, first)
-            channel.events().addListener(StartedEvent, last)
+            channel.events().addListener(Started, first)
+            channel.events().addListener(Started, last)
         when:
             channel.start()
         then:
@@ -60,12 +60,12 @@ final class TextStreamsMessageChannelLifecycleEventsSpec extends Specification {
     void 'after stop should notify StoppedEvent listener'() {
         given:
             ConsumeOneMessage listener = new ConsumeOneMessage()
-            channel.events().addListener(StoppedEvent, listener)
+            channel.events().addListener(Stopped, listener)
             channel.start()
         when:
             channel.stop()
         then:
-            listener.message() instanceof StoppedEvent
+            listener.message() instanceof Stopped
     }
 
     void 'should notify StoppedEvent listeners in sequence based on the order they were registered'() {
@@ -73,8 +73,8 @@ final class TextStreamsMessageChannelLifecycleEventsSpec extends Specification {
             List<AwaitingConsumer> executionOrder = []
             AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
             AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
-            channel.events().addListener(StoppedEvent, first)
-            channel.events().addListener(StoppedEvent, last)
+            channel.events().addListener(Stopped, first)
+            channel.events().addListener(Stopped, last)
             channel.start()
         when:
             channel.stop()
@@ -88,8 +88,8 @@ final class TextStreamsMessageChannelLifecycleEventsSpec extends Specification {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.events().addListener(StoppedEvent, first)
-            channel.events().addListener(StoppedEvent, last)
+            channel.events().addListener(Stopped, first)
+            channel.events().addListener(Stopped, last)
             channel.start()
         when:
             channel.stop()
@@ -103,10 +103,10 @@ final class TextStreamsMessageChannelLifecycleEventsSpec extends Specification {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.events().addListener(StartedEvent, first)
-            channel.events().addListener(StartedEvent, last)
+            channel.events().addListener(Started, first)
+            channel.events().addListener(Started, last)
         when:
-            channel.events().removeListener(StartedEvent, first)
+            channel.events().removeListener(Started, first)
             channel.start()
         then:
             last.waitUntilExecuted()
@@ -117,11 +117,11 @@ final class TextStreamsMessageChannelLifecycleEventsSpec extends Specification {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.events().addListener(StoppedEvent, first)
-            channel.events().addListener(StoppedEvent, last)
+            channel.events().addListener(Stopped, first)
+            channel.events().addListener(Stopped, last)
             channel.start()
         when:
-            channel.events().removeListener(StoppedEvent, first)
+            channel.events().removeListener(Stopped, first)
             channel.stop()
         then:
             last.waitUntilExecuted()

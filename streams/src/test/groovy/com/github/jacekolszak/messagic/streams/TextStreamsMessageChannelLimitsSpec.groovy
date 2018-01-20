@@ -1,7 +1,7 @@
 package com.github.jacekolszak.messagic.streams
 
 import com.github.jacekolszak.messagic.Error
-import com.github.jacekolszak.messagic.StoppedEvent
+import com.github.jacekolszak.messagic.Stopped
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -25,7 +25,7 @@ final class TextStreamsMessageChannelLimitsSpec extends Specification {
             Limits limits = new Limits(textMessageMaximumSize: 1)
             channel = new TextStreamsMessageChannel(input, output, limits)
             channel.events().addListener(Error, errorListener)
-            channel.events().addListener(StoppedEvent, stoppedListener)
+            channel.events().addListener(Stopped, stoppedListener)
             channel.start()
         when:
             inputPipe.writeTextMessage('ab')
@@ -39,7 +39,7 @@ final class TextStreamsMessageChannelLimitsSpec extends Specification {
             Limits limits = new Limits(binaryMessageMaximumSize: 1)
             channel = new TextStreamsMessageChannel(input, output, limits)
             channel.events().addListener(Error, errorListener)
-            channel.events().addListener(StoppedEvent, stoppedListener)
+            channel.events().addListener(Stopped, stoppedListener)
             channel.start()
         when:
             inputPipe.writeBinaryMessage('AQI=')
@@ -53,7 +53,7 @@ final class TextStreamsMessageChannelLimitsSpec extends Specification {
             Limits limits = new Limits(textMessageMaximumSize: 1)
             channel = new TextStreamsMessageChannel(input, output, limits)
             channel.events().addListener(Error, errorListener)
-            channel.events().addListener(StoppedEvent, stoppedListener)
+            channel.events().addListener(Stopped, stoppedListener)
             channel.start()
         when:
             channel.send('ab')
@@ -67,7 +67,7 @@ final class TextStreamsMessageChannelLimitsSpec extends Specification {
             Limits limits = new Limits(binaryMessageMaximumSize: 1)
             channel = new TextStreamsMessageChannel(input, output, limits)
             channel.events().addListener(Error, errorListener)
-            channel.events().addListener(StoppedEvent, stoppedListener)
+            channel.events().addListener(Stopped, stoppedListener)
             channel.start()
         when:
             channel.send([1, 2] as byte[])

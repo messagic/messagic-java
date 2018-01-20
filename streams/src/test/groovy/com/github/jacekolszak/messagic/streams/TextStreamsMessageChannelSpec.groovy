@@ -1,7 +1,7 @@
 package com.github.jacekolszak.messagic.streams
 
 import com.github.jacekolszak.messagic.BinaryMessage
-import com.github.jacekolszak.messagic.StoppedEvent
+import com.github.jacekolszak.messagic.Stopped
 import com.github.jacekolszak.messagic.TextMessage
 import spock.lang.Specification
 import spock.lang.Subject
@@ -270,7 +270,7 @@ final class TextStreamsMessageChannelSpec extends Specification {
     void 'should close the channel when InputStream is closed'() {
         given:
             AwaitingConsumer stoppedListener = new AwaitingConsumer()
-            channel.events().addListener(StoppedEvent, stoppedListener)
+            channel.events().addListener(Stopped, stoppedListener)
             channel.start()
         when:
             inputPipe.close()
@@ -281,7 +281,7 @@ final class TextStreamsMessageChannelSpec extends Specification {
     void 'should close the channel when OutputStream is closed'() {
         given:
             AwaitingConsumer stoppedListener = new AwaitingConsumer()
-            channel.events().addListener(StoppedEvent, stoppedListener)
+            channel.events().addListener(Stopped, stoppedListener)
             channel.start()
         when:
             outputPipe.close()
