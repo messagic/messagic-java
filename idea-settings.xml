@@ -1,0 +1,68 @@
+<code_scheme name="messagic">
+    <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99"/>
+    <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="1000"/>
+    <option name="PACKAGES_TO_USE_IMPORT_ON_DEMAND">
+        <value/>
+    </option>
+    <option name="IMPORT_LAYOUT_TABLE">
+        <value>
+            <package name="" withSubpackages="true" static="true"/>
+            <emptyLine/>
+            <package name="java" withSubpackages="true" static="false"/>
+            <package name="javax" withSubpackages="true" static="false"/>
+            <emptyLine/>
+            <package name="org" withSubpackages="true" static="false"/>
+            <emptyLine/>
+            <package name="com" withSubpackages="true" static="false"/>
+            <package name="" withSubpackages="true" static="false"/>
+        </value>
+    </option>
+    <option name="RIGHT_MARGIN" value="250"/>
+    <JSCodeStyleSettings>
+        <option name="OBJECT_LITERAL_WRAP" value="2"/>
+    </JSCodeStyleSettings>
+    <TypeScriptCodeStyleSettings>
+        <option name="USE_CHAINED_CALLS_GROUP_INDENTS" value="true"/>
+    </TypeScriptCodeStyleSettings>
+    <XML>
+        <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true"/>
+    </XML>
+    <codeStyleSettings language="Groovy">
+        <indentOptions>
+            <option name="CONTINUATION_INDENT_SIZE" value="4"/>
+            <option name="LABEL_INDENT_SIZE" value="4"/>
+        </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="HTML">
+        <indentOptions>
+            <option name="INDENT_SIZE" value="2"/>
+            <option name="CONTINUATION_INDENT_SIZE" value="4"/>
+            <option name="TAB_SIZE" value="2"/>
+        </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="JAVA">
+        <option name="KEEP_BLANK_LINES_IN_DECLARATIONS" value="1"/>
+        <option name="KEEP_BLANK_LINES_IN_CODE" value="1"/>
+        <option name="KEEP_BLANK_LINES_BEFORE_RBRACE" value="1"/>
+        <option name="BLANK_LINES_AFTER_CLASS_HEADER" value="1"/>
+        <option name="SPACE_WITHIN_ARRAY_INITIALIZER_BRACES" value="true"/>
+        <option name="CALL_PARAMETERS_WRAP" value="1"/>
+        <option name="METHOD_PARAMETERS_WRAP" value="1"/>
+        <option name="EXTENDS_LIST_WRAP" value="1"/>
+        <option name="WRAP_LONG_LINES" value="true"/>
+    </codeStyleSettings>
+    <codeStyleSettings language="JSON">
+        <indentOptions>
+            <option name="INDENT_SIZE" value="4"/>
+        </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="JavaScript">
+        <option name="KEEP_LINE_BREAKS" value="false"/>
+        <option name="KEEP_FIRST_COLUMN_COMMENT" value="false"/>
+        <option name="KEEP_SIMPLE_BLOCKS_IN_ONE_LINE" value="true"/>
+        <option name="KEEP_SIMPLE_METHODS_IN_ONE_LINE" value="true"/>
+        <indentOptions>
+            <option name="CONTINUATION_INDENT_SIZE" value="8"/>
+        </indentOptions>
+    </codeStyleSettings>
+</code_scheme>

@@ -1,6 +1,5 @@
 package com.github.jacekolszak.messagic.streams
 
-import com.github.jacekolszak.messagic.StartedEvent
 import com.github.jacekolszak.messagic.StoppedEvent
 import spock.lang.Specification
 import spock.lang.Subject
