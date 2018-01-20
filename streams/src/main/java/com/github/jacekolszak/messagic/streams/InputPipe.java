@@ -6,7 +6,7 @@ import java.io.InterruptedIOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class InputPipe {
+final class InputPipe {
 
     private static final Logger logger = Logger.getLogger(InputPipe.class.getName());
 

@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class OutputPipe {
+final class OutputPipe {
 
     private static final Logger logger = Logger.getLogger(OutputPipe.class.getName());
 

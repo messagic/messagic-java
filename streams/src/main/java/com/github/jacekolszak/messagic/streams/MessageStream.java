@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
 
-class MessageStream {
+final class MessageStream {
 
     private final LimitedBuffer buffer;
     private final MessagePublisher messagePublisher;

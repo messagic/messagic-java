@@ -5,7 +5,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-class Buffer {
+final class Buffer {
 
     private final BufferedInputStream input;
 

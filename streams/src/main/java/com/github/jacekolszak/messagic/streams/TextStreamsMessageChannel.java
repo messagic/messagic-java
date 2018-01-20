@@ -9,11 +9,11 @@ import com.github.jacekolszak.messagic.MessageChannel;
 import com.github.jacekolszak.messagic.StartedEvent;
 import com.github.jacekolszak.messagic.StoppedEvent;
 
-public class TextStreamsMessageChannel implements MessageChannel {
+public final class TextStreamsMessageChannel implements MessageChannel {
 
     private final InputPipe input;
     private final OutputPipe output;
-    private final TextStreamsIncomingStream messageConsumers;
+    private final TextStreamsIncomingStream incomingStream;
     private final ChannelDispatchThread dispatchThread;
     private final TextStreamsLifecycle lifecycle;
 
@@ -25,8 +25,8 @@ public class TextStreamsMessageChannel implements MessageChannel {
 
     public TextStreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
         this.dispatchThread = new ChannelDispatchThread();
-        this.messageConsumers = new TextStreamsIncomingStream(dispatchThread);
-        this.input = new InputPipe(input, limits, messageConsumers, this::stop);
+        this.incomingStream = new TextStreamsIncomingStream(dispatchThread);
+        this.input = new InputPipe(input, limits, incomingStream, this::stop);
         this.output = new OutputPipe(output, limits, this::stop);
         this.lifecycle = new TextStreamsLifecycle(dispatchThread);
     }
@@ -38,7 +38,7 @@ public class TextStreamsMessageChannel implements MessageChannel {
 
     @Override
     public IncomingStream incomingStream() {
-        return messageConsumers;
+        return incomingStream;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class TextStreamsMessageChannel implements MessageChannel {
             StartedEvent event = () -> this;
             lifecycle.notify(event);
         } else if (state == State.STOPPED) {
-            throw new IllegalStateException("Cant start channel which was stopped before");
+            throw new IllegalStateException("Can't start channel which was stopped before");
         }
     }
 

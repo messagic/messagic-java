@@ -9,7 +9,7 @@ import com.github.jacekolszak.messagic.LifecycleEvent;
 import com.github.jacekolszak.messagic.StartedEvent;
 import com.github.jacekolszak.messagic.StoppedEvent;
 
-class TextStreamsLifecycle implements Lifecycle {
+final class TextStreamsLifecycle implements Lifecycle {
 
     private final ChannelDispatchThread dispatchThread;
     private final List<Consumer<StartedEvent>> startedListeners = new ArrayList<>();

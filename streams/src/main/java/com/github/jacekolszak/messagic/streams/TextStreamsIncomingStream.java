@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 import com.github.jacekolszak.messagic.IncomingStream;
 
-class TextStreamsIncomingStream implements IncomingStream, MessagePublisher {
+final class TextStreamsIncomingStream implements IncomingStream, MessagePublisher {
 
     private final List<Consumer<String>> textMessageListeners = new ArrayList<>();
     private final List<Consumer<byte[]>> binaryMessageListeners = new ArrayList<>();

@@ -3,7 +3,7 @@ package com.github.jacekolszak.messagic.streams;
 import java.io.IOException;
 import java.io.InputStream;
 
-class LimitedBuffer {
+final class LimitedBuffer {
 
     private final Buffer buffer;
     private final int binaryMessageMaximumSize;
