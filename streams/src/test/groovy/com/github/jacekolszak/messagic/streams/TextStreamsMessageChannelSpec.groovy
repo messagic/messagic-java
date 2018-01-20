@@ -387,4 +387,28 @@ class TextStreamsMessageChannelSpec extends Specification {
             thrown(IllegalStateException)
     }
 
+
+    void 'should close the channel when InputStream is closed'() {
+        given:
+            AwaitingConsumer stoppedListener = new AwaitingConsumer({})
+            channel.lifecycle().addEventListener(StoppedEvent, stoppedListener)
+            channel.start()
+        when:
+            inputPipe.close()
+        then:
+            stoppedListener.waitUntilExecuted()
+    }
+
+    void 'should close the channel when OutputStream is closed'() {
+        given:
+            AwaitingConsumer stoppedListener = new AwaitingConsumer({})
+            channel.lifecycle().addEventListener(StoppedEvent, stoppedListener)
+            channel.start()
+        when:
+            outputPipe.close()
+            channel.send('a')
+        then:
+            stoppedListener.waitUntilExecuted()
+    }
+
 }

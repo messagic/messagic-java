@@ -27,8 +27,8 @@ public class TextStreamsMessageChannel implements MessageChannel, Lifecycle {
     public TextStreamsMessageChannel(InputStream input, OutputStream output) {
         this.dispatchThread = new ChannelDispatchThread();
         this.messageConsumers = new TextStreamsIncomingStream(dispatchThread);
-        this.input = new InputPipe(input, messageConsumers);
-        this.output = new OutputPipe(output);
+        this.input = new InputPipe(input, messageConsumers, this::stop);
+        this.output = new OutputPipe(output, this::stop);
     }
 
     @Override

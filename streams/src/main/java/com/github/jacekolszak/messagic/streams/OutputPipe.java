@@ -14,11 +14,13 @@ class OutputPipe {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final OutputStream output;
+    private final Runnable onError;
 
     private boolean stopped;
 
-    OutputPipe(OutputStream output) {
+    OutputPipe(OutputStream output, Runnable onError) {
         this.output = output;
+        this.onError = onError;
     }
 
     public void send(String textMessage) {
@@ -32,6 +34,7 @@ class OutputPipe {
                     output.write('\n');
                 } catch (IOException e) {
                     logger.log(Level.SEVERE, "Problem writing text message to stream", e);
+                    onError.run();
                 }
             });
         }
@@ -55,6 +58,7 @@ class OutputPipe {
                     output.write('\n');
                 } catch (IOException e) {
                     logger.log(Level.SEVERE, "Problem writing binary message to stream", e);
+                    onError.run();
                 }
             });
         }

@@ -11,10 +11,12 @@ class InputPipe {
     private static final Logger logger = Logger.getLogger(InputPipe.class.getName());
 
     private final MessageStream messageStream;
+    private final Runnable onError;
     private Thread thread;
     private volatile boolean stopped;
 
-    InputPipe(InputStream input, MessagePublisher messagePublisher) {
+    InputPipe(InputStream input, MessagePublisher messagePublisher, Runnable onError) {
+        this.onError = onError;
         this.messageStream = new MessageStream(input, 1024, 1024, messagePublisher);
     }
 
@@ -28,6 +30,7 @@ class InputPipe {
                 logger.info("Reading message stream interrupted");
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Problem during reading message stream", e);
+                onError.run();
             }
         });
         thread.start();
