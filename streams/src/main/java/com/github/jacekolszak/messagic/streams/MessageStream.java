@@ -31,12 +31,12 @@ final class MessageStream {
         }
     }
 
-    private void publishDecodedMessage(byte[] message) {
+    private void publishDecodedMessage(byte[] message) throws IOException {
         byte[] decoded;
         try {
             decoded = Base64.getDecoder().decode(message);
         } catch (IllegalArgumentException e) {
-            return;
+            throw new IOException("Problem during decoding binary message", e);
         }
         incomingMessageListener.binaryMessageFound(decoded);
     }

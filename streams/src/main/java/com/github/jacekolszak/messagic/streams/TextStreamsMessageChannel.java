@@ -20,8 +20,14 @@ public final class TextStreamsMessageChannel implements MessageChannel {
 
     public TextStreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
         this.events = new ChannelEventsImpl(this);
-        this.input = new InputPipe(input, limits, events, this::stop);
-        this.output = new OutputPipe(output, limits, this::stop);
+        this.input = new InputPipe(input, limits, events, exception -> {
+            events.notifyError(exception);
+            stop();
+        });
+        this.output = new OutputPipe(output, limits, exception -> {
+            events.notifyError(exception);
+            stop();
+        });
     }
 
     @Override

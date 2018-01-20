@@ -3,7 +3,7 @@ package com.github.jacekolszak.messagic.streams;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.util.logging.Level;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 final class InputPipe {
@@ -11,11 +11,11 @@ final class InputPipe {
     private static final Logger logger = Logger.getLogger(InputPipe.class.getName());
 
     private final MessageStream messageStream;
-    private final Runnable onError;
+    private final Consumer<Exception> onError;
     private Thread thread;
     private volatile boolean stopped;
 
-    InputPipe(InputStream input, Limits limits, IncomingMessageListener incomingMessageListener, Runnable onError) {
+    InputPipe(InputStream input, Limits limits, IncomingMessageListener incomingMessageListener, Consumer<Exception> onError) {
         this.onError = onError;
         this.messageStream = new MessageStream(input, limits, incomingMessageListener);
     }
@@ -29,8 +29,7 @@ final class InputPipe {
             } catch (InterruptedIOException e) {
                 logger.info("Reading message stream interrupted");
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Problem during reading message stream", e);
-                onError.run();
+                onError.accept(new TextStreamsException("Problem during reading input stream", e));
             }
         });
         thread.start();

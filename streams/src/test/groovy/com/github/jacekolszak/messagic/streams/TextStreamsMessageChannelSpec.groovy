@@ -97,7 +97,7 @@ final class TextStreamsMessageChannelSpec extends Specification {
     @Unroll
     void 'should read encoded text message "#inputString" from input stream and notify listener with "#expectedMessage"'() {
         given:
-            ConsumeOneMessage listener = new ConsumeOneMessage()
+            ConsumeOneMessage<TextMessage> listener = new ConsumeOneMessage()
             channel.events().addListener(TextMessage, listener)
             channel.start()
         when:
@@ -115,7 +115,7 @@ final class TextStreamsMessageChannelSpec extends Specification {
     @Unroll
     void 'should read encoded binary message "#inputString" from input stream and notify listener with "#expectedMessage"'() {
         given:
-            ConsumeOneMessage listener = new ConsumeOneMessage()
+            ConsumeOneMessage<BinaryMessage> listener = new ConsumeOneMessage()
             channel.events().addListener(BinaryMessage, listener)
             channel.start()
         when:

@@ -3,14 +3,14 @@ package com.github.jacekolszak.messagic.streams
 import java.util.concurrent.CountDownLatch
 import java.util.function.Consumer
 
-final class ConsumeOneMessage implements Consumer {
+final class ConsumeOneMessage<T> implements Consumer<T> {
 
     private final CountDownLatch latch = new CountDownLatch(1)
-    private Object message
+    private T message
     private boolean messageReceived
 
     @Override
-    void accept(Object message) {
+    void accept(T message) {
         try {
             if (messageReceived) {
                 throw new RuntimeException('Too many messages received. Expected only one')
@@ -22,7 +22,7 @@ final class ConsumeOneMessage implements Consumer {
         }
     }
 
-    Object message() {
+    T message() {
         latch.await()
         if (!messageReceived) {
             throw new RuntimeException('Message not received')
@@ -33,5 +33,6 @@ final class ConsumeOneMessage implements Consumer {
     boolean messageReceived() {
         return messageReceived
     }
+
 
 }

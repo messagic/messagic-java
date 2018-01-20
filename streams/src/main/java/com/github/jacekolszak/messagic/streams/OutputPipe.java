@@ -6,21 +6,18 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.function.Consumer;
 
 final class OutputPipe {
-
-    private static final Logger logger = Logger.getLogger(OutputPipe.class.getName());
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final OutputStream output;
     private final Limits limits;
-    private final Runnable onError;
+    private final Consumer<Exception> onError;
 
     private boolean stopped;
 
-    OutputPipe(OutputStream output, Limits limits, Runnable onError) {
+    OutputPipe(OutputStream output, Limits limits, Consumer<Exception> onError) {
         this.output = output;
         this.limits = limits;
         this.onError = onError;
@@ -34,15 +31,14 @@ final class OutputPipe {
                         output.write('#');
                     }
                     if (textMessage.length() > limits.textMessageMaximumSize) {
-                        logger.log(Level.SEVERE, "Outgoing text message \"{0}...\" is bigger than allowed {1} characters", new Object[]{ textMessage.substring(0, limits.textMessageMaximumSize), limits.textMessageMaximumSize });
-                        onError.run();
+                        String error = String.format("Outgoing text message \"%s...\" is bigger than allowed %s characters", textMessage.substring(0, limits.textMessageMaximumSize), limits.textMessageMaximumSize);
+                        onError.accept(new TextStreamsException(error));
                         return;
                     }
                     output.write(textMessage.getBytes());
                     output.write('\n');
                 } catch (IOException e) {
-                    logger.log(Level.SEVERE, "Problem writing text message to stream", e);
-                    onError.run();
+                    onError.accept(new TextStreamsException("Problem writing text message to stream", e));
                 }
             });
         }
@@ -63,19 +59,15 @@ final class OutputPipe {
                 try {
                     output.write('$');
                     if (binaryMessage.length > limits.binaryMessageMaximumSize) {
-                        if (logger.isLoggable(Level.SEVERE)) {
-                            String encodedMessageFragment = Base64.getEncoder().encodeToString(Arrays.copyOfRange(binaryMessage, 0, limits.binaryMessageMaximumSize));
-                            logger.log(Level.SEVERE, "Outgoing binary message \"{0}...\" is bigger than allowed {1} bytes",
-                                    new Object[]{ encodedMessageFragment, limits.binaryMessageMaximumSize });
-                        }
-                        onError.run();
+                        String encodedMessageFragment = Base64.getEncoder().encodeToString(Arrays.copyOfRange(binaryMessage, 0, limits.binaryMessageMaximumSize));
+                        String error = String.format("Outgoing binary message \"%s...\" is bigger than allowed %s bytes", encodedMessageFragment, limits.binaryMessageMaximumSize);
+                        onError.accept(new TextStreamsException(error));
                         return;
                     }
                     output.write(Base64.getEncoder().encode(binaryMessage));
                     output.write('\n');
                 } catch (IOException e) {
-                    logger.log(Level.SEVERE, "Problem writing binary message to stream", e);
-                    onError.run();
+                    onError.accept(new TextStreamsException("Problem writing binary message to stream", e));
                 }
             });
         }
