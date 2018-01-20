@@ -98,7 +98,7 @@ class TextStreamsMessageChannelSpec extends Specification {
     void 'should read encoded text message "#inputString" from input stream and notify listener with "#expectedMessage"'() {
         given:
             ConsumeOneMessage listener = new ConsumeOneMessage()
-            channel.messageListeners().addTextMessageListener(listener)
+            channel.incomingStream().addTextMessageListener(listener)
             channel.start()
         when:
             inputPipe.write(inputString.bytes)
@@ -116,7 +116,7 @@ class TextStreamsMessageChannelSpec extends Specification {
     void 'should read encoded binary message "#inputString" from input stream and notify listener with "#expectedMessage"'() {
         given:
             ConsumeOneMessage listener = new ConsumeOneMessage()
-            channel.messageListeners().addBinaryMessageListener(listener)
+            channel.incomingStream().addBinaryMessageListener(listener)
             channel.start()
         when:
             inputPipe.write(inputString.bytes)
@@ -132,7 +132,7 @@ class TextStreamsMessageChannelSpec extends Specification {
     void 'should read many messages in sequence they arrived'() {
         given:
             ConsumeManyMessages listener = new ConsumeManyMessages(2)
-            channel.messageListeners().addTextMessageListener(listener)
+            channel.incomingStream().addTextMessageListener(listener)
             channel.start()
         when:
             writeToInput('1')
@@ -144,7 +144,7 @@ class TextStreamsMessageChannelSpec extends Specification {
     void 'after stop() no new incoming messages are published to listeners'() {
         given:
             ConsumeOneMessage listener = new ConsumeOneMessage()
-            channel.messageListeners().addTextMessageListener(listener)
+            channel.incomingStream().addTextMessageListener(listener)
             channel.start()
         when:
             channel.stop()
@@ -171,8 +171,8 @@ class TextStreamsMessageChannelSpec extends Specification {
             List<AwaitingConsumer> executionOrder = []
             AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
             AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
-            channel.messageListeners().addTextMessageListener(first)
-            channel.messageListeners().addTextMessageListener(last)
+            channel.incomingStream().addTextMessageListener(first)
+            channel.incomingStream().addTextMessageListener(last)
             channel.start()
         when:
             writeTextMessageToInput()
@@ -196,8 +196,8 @@ class TextStreamsMessageChannelSpec extends Specification {
             List<AwaitingConsumer> executionOrder = []
             AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
             AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
-            channel.messageListeners().addBinaryMessageListener(first)
-            channel.messageListeners().addBinaryMessageListener(last)
+            channel.incomingStream().addBinaryMessageListener(first)
+            channel.incomingStream().addBinaryMessageListener(last)
             channel.start()
         when:
             writeBinaryMessageToInput()
@@ -215,8 +215,8 @@ class TextStreamsMessageChannelSpec extends Specification {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
             AwaitingConsumer last = new AwaitingConsumer({})
-            channel.messageListeners().addTextMessageListener(first)
-            channel.messageListeners().addTextMessageListener(last)
+            channel.incomingStream().addTextMessageListener(first)
+            channel.incomingStream().addTextMessageListener(last)
             channel.start()
         when:
             writeTextMessageToInput()
@@ -229,8 +229,8 @@ class TextStreamsMessageChannelSpec extends Specification {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
             AwaitingConsumer last = new AwaitingConsumer({})
-            channel.messageListeners().addBinaryMessageListener(first)
-            channel.messageListeners().addBinaryMessageListener(last)
+            channel.incomingStream().addBinaryMessageListener(first)
+            channel.incomingStream().addBinaryMessageListener(last)
             channel.start()
         when:
             writeBinaryMessageToInput()
@@ -243,11 +243,11 @@ class TextStreamsMessageChannelSpec extends Specification {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
             AwaitingConsumer last = new AwaitingConsumer({})
-            channel.messageListeners().addTextMessageListener(first)
-            channel.messageListeners().addTextMessageListener(last)
+            channel.incomingStream().addTextMessageListener(first)
+            channel.incomingStream().addTextMessageListener(last)
             channel.start()
         when:
-            channel.messageListeners().removeTextMessageListener(first)
+            channel.incomingStream().removeTextMessageListener(first)
             writeTextMessageToInput()
         then:
             last.waitUntilExecuted()
@@ -258,11 +258,11 @@ class TextStreamsMessageChannelSpec extends Specification {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
             AwaitingConsumer last = new AwaitingConsumer({})
-            channel.messageListeners().addBinaryMessageListener(first)
-            channel.messageListeners().addBinaryMessageListener(last)
+            channel.incomingStream().addBinaryMessageListener(first)
+            channel.incomingStream().addBinaryMessageListener(last)
             channel.start()
         when:
-            channel.messageListeners().removeBinaryMessageListener(first)
+            channel.incomingStream().removeBinaryMessageListener(first)
             writeBinaryMessageToInput()
         then:
             last.waitUntilExecuted()

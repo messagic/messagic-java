@@ -2,7 +2,7 @@ package com.github.jacekolszak.messagic;
 
 import java.util.function.Consumer;
 
-public interface MessageListeners {
+public interface IncomingStream {
 
     void addTextMessageListener(Consumer<String> listener);
 

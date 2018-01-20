@@ -8,7 +8,7 @@ public interface MessageChannel {
 
     Lifecycle lifecycle();
 
-    MessageListeners messageListeners();
+    IncomingStream incomingStream();
 
     /**
      * Once started channel allows to send messages and accepts incoming ones. After successful start StartedEvent is published.
