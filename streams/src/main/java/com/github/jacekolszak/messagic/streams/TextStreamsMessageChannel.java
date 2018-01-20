@@ -105,8 +105,12 @@ public class TextStreamsMessageChannel implements MessageChannel, Lifecycle {
     }
 
     @Override
-    public <T extends LifecycleEvent> void removeEventListener(Consumer<T> listener) {
-        // TODO Implement
+    public <T extends LifecycleEvent> void removeEventListener(Class<T> eventClass, Consumer<T> listener) {
+        if (eventClass.equals(StartedEvent.class)) {
+            startedListeners.remove(listener);
+        } else if (eventClass.equals(StoppedEvent.class)) {
+            stoppedListeners.remove(listener);
+        }
     }
 
     private enum State {

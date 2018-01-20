@@ -9,6 +9,6 @@ public interface Lifecycle {
 
     <T extends LifecycleEvent> void addEventListener(Class<T> eventClass, Consumer<T> listener);
 
-    <T extends LifecycleEvent> void removeEventListener(Consumer<T> listener);
+    <T extends LifecycleEvent> void removeEventListener(Class<T> eventClass, Consumer<T> listener);
 
 }

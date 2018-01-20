@@ -21,7 +21,7 @@ class TextStreamsMessageChannelSpec extends Specification {
     private final TextStreamsMessageChannel channel = new TextStreamsMessageChannel(input, output)
 
     void cleanup() {
-            channel.stop()
+        channel.stop()
     }
 
     void 'should send text message to output stream'() {
@@ -346,6 +346,35 @@ class TextStreamsMessageChannelSpec extends Specification {
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
+    }
+
+    void 'removed StartedEvent lifecycle listeners does not receive notifications'() {
+        given:
+            ConsumeOneMessage first = new ConsumeOneMessage()
+            AwaitingConsumer last = new AwaitingConsumer({})
+            channel.lifecycle().addEventListener(StartedEvent, first)
+            channel.lifecycle().addEventListener(StartedEvent, last)
+        when:
+            channel.lifecycle().removeEventListener(StartedEvent, first)
+            channel.start()
+        then:
+            last.waitUntilExecuted()
+            !first.messageReceived()
+    }
+
+    void 'removed StoppedEvent lifecycle listeners does not receive notifications'() {
+        given:
+            ConsumeOneMessage first = new ConsumeOneMessage()
+            AwaitingConsumer last = new AwaitingConsumer({})
+            channel.lifecycle().addEventListener(StoppedEvent, first)
+            channel.lifecycle().addEventListener(StoppedEvent, last)
+            channel.start()
+        when:
+            channel.lifecycle().removeEventListener(StoppedEvent, first)
+            channel.stop()
+        then:
+            last.waitUntilExecuted()
+            !first.messageReceived()
     }
 
     void 'cant start channel when it was stopped'() {
