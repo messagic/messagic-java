@@ -17,7 +17,6 @@ final class TextMessage {
         }
         output.write(text.getBytes());
         output.write('\n');
-
     }
 
     private boolean messageStartsWithSpecialCharacter() {

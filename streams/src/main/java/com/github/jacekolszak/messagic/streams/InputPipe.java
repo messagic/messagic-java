@@ -6,6 +6,8 @@ import java.io.InterruptedIOException;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
+import com.github.jacekolszak.messagic.streams.events.IncomingMessageListener;
+
 final class InputPipe {
 
     private static final Logger logger = Logger.getLogger(InputPipe.class.getName());

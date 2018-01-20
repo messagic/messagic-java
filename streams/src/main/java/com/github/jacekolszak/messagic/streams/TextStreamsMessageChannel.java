@@ -5,6 +5,7 @@ import java.io.OutputStream;
 
 import com.github.jacekolszak.messagic.ChannelEvents;
 import com.github.jacekolszak.messagic.MessageChannel;
+import com.github.jacekolszak.messagic.streams.events.ChannelEventsImpl;
 
 public final class TextStreamsMessageChannel implements MessageChannel {
 

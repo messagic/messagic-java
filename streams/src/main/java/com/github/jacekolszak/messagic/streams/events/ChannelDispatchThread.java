@@ -1,4 +1,4 @@
-package com.github.jacekolszak.messagic.streams;
+package com.github.jacekolszak.messagic.streams.events;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

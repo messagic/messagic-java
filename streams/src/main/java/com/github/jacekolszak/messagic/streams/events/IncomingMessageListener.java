@@ -1,6 +1,6 @@
-package com.github.jacekolszak.messagic.streams;
+package com.github.jacekolszak.messagic.streams.events;
 
-interface IncomingMessageListener {
+public interface IncomingMessageListener {
 
     void textMessageFound(String textMessage);
 

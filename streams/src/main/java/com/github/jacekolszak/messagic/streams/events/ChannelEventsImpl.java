@@ -1,4 +1,4 @@
-package com.github.jacekolszak.messagic.streams;
+package com.github.jacekolszak.messagic.streams.events;
 
 import java.util.function.Consumer;
 
@@ -11,23 +11,23 @@ import com.github.jacekolszak.messagic.Started;
 import com.github.jacekolszak.messagic.Stopped;
 import com.github.jacekolszak.messagic.TextMessage;
 
-final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener {
+public final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener {
 
     private final ChannelDispatchThread dispatchThread;
     private final ListenersSet listenersSet;
     private final MessageChannel channel;
 
-    ChannelEventsImpl(MessageChannel channel) {
+    public ChannelEventsImpl(MessageChannel channel) {
         this.channel = channel;
         this.dispatchThread = new ChannelDispatchThread();
         this.listenersSet = new ListenersSet();
     }
 
-    void start() {
+    public void start() {
         dispatchThread.start();
     }
 
-    void stop() {
+    public void stop() {
         dispatchThread.stop();
     }
 
@@ -41,7 +41,7 @@ final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener 
         listenersSet.remove(eventClass, listener);
     }
 
-    void notifyStarted() {
+    public void notifyStarted() {
         Started event = () -> channel;
         notify(event);
     }
@@ -53,7 +53,7 @@ final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener 
                 );
     }
 
-    void notifyStopped() {
+    public void notifyStopped() {
         Stopped event = () -> channel;
         notify(event);
     }

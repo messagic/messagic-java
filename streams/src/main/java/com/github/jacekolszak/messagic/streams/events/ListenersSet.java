@@ -1,4 +1,4 @@
-package com.github.jacekolszak.messagic.streams;
+package com.github.jacekolszak.messagic.streams.events;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
