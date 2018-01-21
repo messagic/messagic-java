@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 import com.github.jacekolszak.messagic.EventBus;
 import com.github.jacekolszak.messagic.MessageChannel;
-import com.github.jacekolszak.messagic.streams.events.EventBusImpl;
+import com.github.jacekolszak.messagic.streams.eventbus.EventBusImpl;
 import com.github.jacekolszak.messagic.streams.input.InputPipe;
 import com.github.jacekolszak.messagic.streams.input.MessageStream;
 import com.github.jacekolszak.messagic.streams.output.MessageFactory;

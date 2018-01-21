@@ -1,4 +1,4 @@
-package com.github.jacekolszak.messagic.streams.events;
+package com.github.jacekolszak.messagic.streams.eventbus;
 
 import java.util.Set;
 import java.util.function.Consumer;
