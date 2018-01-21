@@ -15,7 +15,7 @@ final class TextMessage {
         if (messageStartsWithSpecialCharacter()) {
             output.write('#');
         }
-        output.write(text.getBytes());
+        output.write(text.getBytes("UTF-8"));
         output.write('\n');
     }
 

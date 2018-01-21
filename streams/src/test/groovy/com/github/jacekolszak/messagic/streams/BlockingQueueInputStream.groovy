@@ -5,9 +5,9 @@ import java.util.concurrent.BlockingQueue
 
 final class BlockingQueueInputStream extends InputStream {
 
+    private static final String ENCODING = "UTF-8"
     private static final int EOF = -1
     private static final int IO_EXCEPTION = -2
-
     private final BlockingQueue<Integer> bytesQueue = new ArrayBlockingQueue<>(1024)
 
     void write(byte[] bytes) {
@@ -17,7 +17,7 @@ final class BlockingQueueInputStream extends InputStream {
     }
 
     void writeTextMessage(String textMessage) {
-        write((textMessage + '\n').bytes)
+        write((textMessage + '\n').getBytes(ENCODING))
     }
 
     void writeTextMessage() {
@@ -25,11 +25,11 @@ final class BlockingQueueInputStream extends InputStream {
     }
 
     void writeBinaryMessage() {
-        write('$AQID\n'.bytes)
+        write('$AQID\n'.getBytes(ENCODING))
     }
 
     void writeBinaryMessage(String base64) {
-        write("\$$base64\n".bytes)
+        write("\$$base64\n".getBytes(ENCODING))
     }
 
     @Override

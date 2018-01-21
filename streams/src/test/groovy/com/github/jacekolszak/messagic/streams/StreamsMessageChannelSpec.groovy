@@ -97,7 +97,7 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.eventBus().addListener(TextMessage, listener)
             channel.start()
         when:
-            inputStream.write(inputString.bytes)
+            inputStream.write(inputString.getBytes("UTF-8"))
         then:
             listener.message().text() == expectedMessage
             listener.message().channel() == channel
@@ -120,7 +120,7 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.eventBus().addListener(BinaryMessage, listener)
             channel.start()
         when:
-            inputStream.write(inputString.bytes)
+            inputStream.write(inputString.getBytes("UTF-8"))
         then:
             listener.message().bytes() == expectedMessage as byte[]
             listener.message().channel() == channel
