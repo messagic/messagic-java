@@ -38,10 +38,18 @@ public final class DecodingBuffer {
         }
     }
 
+    String nextPartialTextMessage() throws IOException {
+        return nextTextMessage(textMessageMaximumSize - 1);
+    }
+
     String nextTextMessage() throws IOException {
-        String text = textBuffer.nextMessage(textMessageMaximumSize);
-        if (text.length() > textMessageMaximumSize) {
-            String error = String.format("Incoming text message \"%s...\" is bigger than allowed %s characters", text.substring(0, textMessageMaximumSize), textMessageMaximumSize);
+        return nextTextMessage(textMessageMaximumSize);
+    }
+
+    private String nextTextMessage(int maxSize) throws IOException {
+        String text = textBuffer.nextMessage(maxSize);
+        if (text.length() > maxSize) {
+            String error = String.format("Incoming text message \"%s...\" is bigger than allowed %s characters", text.substring(0, maxSize), maxSize);
             throw new StreamsMessageChannelException(error);
         }
         return text;

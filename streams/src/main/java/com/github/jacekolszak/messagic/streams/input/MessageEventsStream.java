@@ -27,7 +27,7 @@ public final class MessageEventsStream {
             case '#':
                 return textMessageEvent(buffer.nextTextMessage());
             default:
-                return textMessageEvent(typeOrFistCharacter + buffer.nextTextMessage());
+                return textMessageEvent(typeOrFistCharacter + buffer.nextPartialTextMessage());
         }
     }
 
