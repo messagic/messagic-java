@@ -1,5 +1,6 @@
 package com.github.jacekolszak.messagic.streams
 
+import com.github.jacekolszak.messagic.Event
 import com.github.jacekolszak.messagic.Started
 import com.github.jacekolszak.messagic.Stopped
 import spock.lang.Specification
@@ -156,6 +157,20 @@ final class LifecycleSpec extends Specification {
             channel.send('a')
         then:
             stoppedListener.waitUntilExecuted()
+    }
+
+    void 'should throw RuntimeException when adding listener for invalid event type'() {
+        when:
+            channel.eventBus().addListener(Event, {})
+        then:
+            thrown(RuntimeException)
+    }
+
+    void 'should throw RuntimeException when removinglistener for invalid event type'() {
+        when:
+            channel.eventBus().removeListener(Event, {})
+        then:
+            thrown(RuntimeException)
     }
 
 }

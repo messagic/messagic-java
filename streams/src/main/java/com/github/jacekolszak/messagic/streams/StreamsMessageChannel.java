@@ -27,15 +27,15 @@ public final class StreamsMessageChannel implements MessageChannel {
     }
 
     public StreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
-        this.events = new EventBusImpl(this);
-        MessageStream messageStream = limits.messageStream(input, events);
-        this.input = new InputPipe(messageStream, exception -> {
-            events.notifyError(exception);
+        this.events = new EventBusImpl();
+        MessageStream messageStream = limits.messageStream(input, this);
+        this.input = new InputPipe(messageStream, events, exception -> {
+            events.accept(new ErrorEvent(this, exception));
             stop();
         });
         MessageFactory messageFactory = limits.messageFactory();
         this.output = new OutputPipe(output, messageFactory, exception -> {
-            events.notifyError(exception);
+            events.accept(new ErrorEvent(this, exception));
             stop();
         });
     }
@@ -51,7 +51,7 @@ public final class StreamsMessageChannel implements MessageChannel {
             input.start();
             state = State.STARTED;
             events.start();
-            events.notifyStarted();
+            events.accept(new StartedEvent(this));
         } else if (state == State.STOPPED) {
             throw new IllegalStateException("Can't start channel which was stopped before");
         }
@@ -76,7 +76,7 @@ public final class StreamsMessageChannel implements MessageChannel {
                 this.output.stop();
             }
             state = State.STOPPED;
-            events.notifyStopped();
+            events.accept(new StoppedEvent(this));
             events.stop();
         }
     }

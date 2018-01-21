@@ -1,4 +1,4 @@
-package com.github.jacekolszak.messagic.streams.events;
+package com.github.jacekolszak.messagic.streams;
 
 import com.github.jacekolszak.messagic.Error;
 import com.github.jacekolszak.messagic.MessageChannel;

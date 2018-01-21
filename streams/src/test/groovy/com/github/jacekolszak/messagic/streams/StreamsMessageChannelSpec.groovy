@@ -100,6 +100,7 @@ final class StreamsMessageChannelSpec extends Specification {
             inputStream.write(inputString.bytes)
         then:
             listener.message().text() == expectedMessage
+            listener.message().channel() == channel
         where:
             inputString      || expectedMessage
             'textMessage\n'  || 'textMessage'
@@ -118,6 +119,7 @@ final class StreamsMessageChannelSpec extends Specification {
             inputStream.write(inputString.bytes)
         then:
             listener.message().bytes() == expectedMessage as byte[]
+            listener.message().channel() == channel
         where:
             inputString || expectedMessage
             '$AQID\n'   || [1, 2, 3]
@@ -135,6 +137,7 @@ final class StreamsMessageChannelSpec extends Specification {
             inputStream.writeTextMessage('2')
         then:
             listener.messages()*.text() == ['1', '2']
+            listener.messages()*.channel() == [channel, channel]
     }
 
     void 'after stop() no new incoming messages are published to listeners'() {

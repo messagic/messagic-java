@@ -1,4 +1,4 @@
-package com.github.jacekolszak.messagic.streams.events;
+package com.github.jacekolszak.messagic.streams.input;
 
 import com.github.jacekolszak.messagic.BinaryMessage;
 import com.github.jacekolszak.messagic.MessageChannel;
