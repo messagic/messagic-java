@@ -1,4 +1,4 @@
-package com.github.jacekolszak.messagic.streams;
+package com.github.jacekolszak.messagic.streams.input;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +9,7 @@ final class LimitedBuffer {
     private final int binaryMessageMaximumSize;
     private final int textMessageMaximumSize;
 
-    LimitedBuffer(InputStream input, int binaryMessageMaximumSize, int textMessageMaximumSize) {
+    LimitedBuffer(InputStream input, int textMessageMaximumSize, int binaryMessageMaximumSize) {
         this.buffer = new Buffer(input);
         this.binaryMessageMaximumSize = binaryMessageMaximumSize;
         this.textMessageMaximumSize = textMessageMaximumSize;

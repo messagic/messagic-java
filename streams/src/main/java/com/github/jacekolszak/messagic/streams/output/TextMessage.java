@@ -1,4 +1,4 @@
-package com.github.jacekolszak.messagic.streams;
+package com.github.jacekolszak.messagic.streams.output;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -1,4 +1,4 @@
-package com.github.jacekolszak.messagic.streams;
+package com.github.jacekolszak.messagic.streams.output;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -6,7 +6,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-final class OutputPipe {
+import com.github.jacekolszak.messagic.streams.TextStreamsException;
+
+public final class OutputPipe {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final OutputStream output;
@@ -15,9 +17,9 @@ final class OutputPipe {
 
     private boolean stopped;
 
-    OutputPipe(OutputStream output, Limits limits, Consumer<Exception> onError) {
+    public OutputPipe(OutputStream output, MessageFactory messageFactory, Consumer<Exception> onError) {
         this.output = output;
-        this.messageFactory = new MessageFactory(limits);
+        this.messageFactory = messageFactory;
         this.onError = onError;
     }
 

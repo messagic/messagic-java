@@ -1,14 +1,13 @@
-package com.github.jacekolszak.messagic.streams;
+package com.github.jacekolszak.messagic.streams.input;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
-import com.github.jacekolszak.messagic.streams.events.IncomingMessageListener;
+import com.github.jacekolszak.messagic.streams.TextStreamsException;
 
-final class InputPipe {
+public final class InputPipe {
 
     private static final Logger logger = Logger.getLogger(InputPipe.class.getName());
 
@@ -17,12 +16,12 @@ final class InputPipe {
     private Thread thread;
     private volatile boolean stopped;
 
-    InputPipe(InputStream input, Limits limits, IncomingMessageListener incomingMessageListener, Consumer<Exception> onError) {
+    public InputPipe(MessageStream messageStream, Consumer<Exception> onError) {
         this.onError = onError;
-        this.messageStream = new MessageStream(input, limits, incomingMessageListener);
+        this.messageStream = messageStream;
     }
 
-    void start() {
+    public void start() {
         thread = new Thread(() -> {
             try {
                 while (!stopped) {
@@ -37,7 +36,7 @@ final class InputPipe {
         thread.start();
     }
 
-    void stop() {
+    public void stop() {
         stopped = true;
         if (thread != null) {
             thread.interrupt();

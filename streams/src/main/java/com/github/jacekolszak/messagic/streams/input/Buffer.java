@@ -1,4 +1,4 @@
-package com.github.jacekolszak.messagic.streams;
+package com.github.jacekolszak.messagic.streams.input;
 
 import java.io.BufferedInputStream;
 import java.io.EOFException;

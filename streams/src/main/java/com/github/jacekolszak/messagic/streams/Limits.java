@@ -1,9 +1,15 @@
 package com.github.jacekolszak.messagic.streams;
 
+import java.io.InputStream;
+
+import com.github.jacekolszak.messagic.streams.events.IncomingMessageListener;
+import com.github.jacekolszak.messagic.streams.input.MessageStream;
+import com.github.jacekolszak.messagic.streams.output.MessageFactory;
+
 public final class Limits {
 
-    int binaryMessageMaximumSize = 4096;
-    int textMessageMaximumSize = 4096;
+    private int textMessageMaximumSize = 4096;
+    private int binaryMessageMaximumSize = 4096;
 
     /**
      * Exceeding the maximum size either during pushing messages or receiving them will stop the
@@ -25,4 +31,11 @@ public final class Limits {
         this.textMessageMaximumSize = characters;
     }
 
+    MessageFactory messageFactory() {
+        return new MessageFactory(textMessageMaximumSize, binaryMessageMaximumSize);
+    }
+
+    MessageStream messageStream(InputStream input, IncomingMessageListener incomingMessageListener) {
+        return new MessageStream(input, textMessageMaximumSize, binaryMessageMaximumSize, incomingMessageListener);
+    }
 }

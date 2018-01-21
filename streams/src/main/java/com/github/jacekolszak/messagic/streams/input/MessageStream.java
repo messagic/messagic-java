@@ -1,4 +1,4 @@
-package com.github.jacekolszak.messagic.streams;
+package com.github.jacekolszak.messagic.streams.input;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,13 +6,13 @@ import java.util.Base64;
 
 import com.github.jacekolszak.messagic.streams.events.IncomingMessageListener;
 
-final class MessageStream {
+public final class MessageStream {
 
     private final LimitedBuffer buffer;
     private final IncomingMessageListener incomingMessageListener;
 
-    MessageStream(InputStream input, Limits limits, IncomingMessageListener incomingMessageListener) {
-        this.buffer = new LimitedBuffer(input, limits.binaryMessageMaximumSize, limits.textMessageMaximumSize);
+    public MessageStream(InputStream input, int textMessageMaximumSize, int binaryMessageMaximumSize, IncomingMessageListener incomingMessageListener) {
+        this.buffer = new LimitedBuffer(input, textMessageMaximumSize, binaryMessageMaximumSize);
         this.incomingMessageListener = incomingMessageListener;
     }
 

@@ -6,6 +6,10 @@ import java.io.OutputStream;
 import com.github.jacekolszak.messagic.ChannelEvents;
 import com.github.jacekolszak.messagic.MessageChannel;
 import com.github.jacekolszak.messagic.streams.events.ChannelEventsImpl;
+import com.github.jacekolszak.messagic.streams.input.InputPipe;
+import com.github.jacekolszak.messagic.streams.input.MessageStream;
+import com.github.jacekolszak.messagic.streams.output.MessageFactory;
+import com.github.jacekolszak.messagic.streams.output.OutputPipe;
 
 public final class TextStreamsMessageChannel implements MessageChannel {
 
@@ -21,11 +25,13 @@ public final class TextStreamsMessageChannel implements MessageChannel {
 
     public TextStreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
         this.events = new ChannelEventsImpl(this);
-        this.input = new InputPipe(input, limits, events, exception -> {
+        MessageStream messageStream = limits.messageStream(input, events);
+        this.input = new InputPipe(messageStream, exception -> {
             events.notifyError(exception);
             stop();
         });
-        this.output = new OutputPipe(output, limits, exception -> {
+        MessageFactory messageFactory = limits.messageFactory();
+        this.output = new OutputPipe(output, messageFactory, exception -> {
             events.notifyError(exception);
             stop();
         });
