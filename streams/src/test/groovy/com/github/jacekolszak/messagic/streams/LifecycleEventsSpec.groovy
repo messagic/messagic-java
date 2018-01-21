@@ -5,14 +5,14 @@ import com.github.jacekolszak.messagic.Stopped
 import spock.lang.Specification
 import spock.lang.Subject
 
-final class TextStreamsMessageChannelLifecycleEventsSpec extends Specification {
+final class LifecycleEventsSpec extends Specification {
 
-    private final TextStreamsPipedOutputStream inputPipe = new TextStreamsPipedOutputStream()
+    private final StreamsPipedOutputStream inputPipe = new StreamsPipedOutputStream()
     private final PipedInputStream input = inputPipe.inputStream()
-    private final TextStreamsPipedOutputStream output = new TextStreamsPipedOutputStream()
+    private final StreamsPipedOutputStream output = new StreamsPipedOutputStream()
 
     @Subject
-    private TextStreamsMessageChannel channel = new TextStreamsMessageChannel(input, output)
+    private StreamsMessageChannel channel = new StreamsMessageChannel(input, output)
 
     void cleanup() {
         channel.stop()

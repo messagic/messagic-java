@@ -1,15 +1,15 @@
 package com.github.jacekolszak.messagic.streams
 
-final class TextStreamsPipedOutputStream extends PipedOutputStream {
+final class StreamsPipedOutputStream extends PipedOutputStream {
 
     private final PipedInputStream inputStream
 
-    TextStreamsPipedOutputStream(PipedInputStream inputStream) {
-        super(inputStream);
+    StreamsPipedOutputStream(PipedInputStream inputStream) {
+        super(inputStream)
         this.inputStream = inputStream
     }
 
-    TextStreamsPipedOutputStream() {
+    StreamsPipedOutputStream() {
         this(new PipedInputStream())
     }
 

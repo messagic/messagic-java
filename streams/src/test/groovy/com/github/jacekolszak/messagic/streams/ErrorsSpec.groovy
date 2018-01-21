@@ -6,16 +6,16 @@ import spock.lang.Subject
 import spock.lang.Timeout
 
 @Timeout(5)
-final class TextStreamsMessageChannelErrorsSpec extends Specification {
+final class ErrorsSpec extends Specification {
 
-    private final TextStreamsPipedOutputStream inputPipe = new TextStreamsPipedOutputStream()
+    private final StreamsPipedOutputStream inputPipe = new StreamsPipedOutputStream()
     private final PipedInputStream input = inputPipe.inputStream()
     private final PipedInputStream outputPipe = new PipedInputStream()
-    private final TextStreamsPipedOutputStream output = new TextStreamsPipedOutputStream(outputPipe)
+    private final StreamsPipedOutputStream output = new StreamsPipedOutputStream(outputPipe)
     private final ConsumeOneMessage<Error> listener = new ConsumeOneMessage()
 
     @Subject
-    private TextStreamsMessageChannel channel = new TextStreamsMessageChannel(input, output)
+    private StreamsMessageChannel channel = new StreamsMessageChannel(input, output)
 
     void setup() {
         channel.events().addListener(Error, listener)
@@ -30,7 +30,7 @@ final class TextStreamsMessageChannelErrorsSpec extends Specification {
         when:
             inputPipe.close()
         then:
-            listener.message().exception() instanceof TextStreamsException
+            listener.message().exception() instanceof StreamsMessageChannelException
             listener.message().channel() == channel
     }
 
@@ -38,7 +38,7 @@ final class TextStreamsMessageChannelErrorsSpec extends Specification {
         when:
             inputPipe.writeBinaryMessage('*')
         then:
-            listener.message().exception() instanceof TextStreamsException
+            listener.message().exception() instanceof StreamsMessageChannelException
             listener.message().channel() == channel
     }
 
@@ -47,7 +47,7 @@ final class TextStreamsMessageChannelErrorsSpec extends Specification {
             outputPipe.close()
             channel.send('textMessage')
         then:
-            listener.message().exception() instanceof TextStreamsException
+            listener.message().exception() instanceof StreamsMessageChannelException
             listener.message().channel() == channel
     }
 
@@ -56,7 +56,7 @@ final class TextStreamsMessageChannelErrorsSpec extends Specification {
             outputPipe.close()
             channel.send([1, 2, 3] as byte[])
         then:
-            listener.message().exception() instanceof TextStreamsException
+            listener.message().exception() instanceof StreamsMessageChannelException
             listener.message().channel() == channel
     }
 

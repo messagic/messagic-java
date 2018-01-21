@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import com.github.jacekolszak.messagic.streams.TextStreamsException;
+import com.github.jacekolszak.messagic.streams.StreamsMessageChannelException;
 
 public final class OutputPipe {
 
@@ -29,8 +29,8 @@ public final class OutputPipe {
                 try {
                     TextMessage message = messageFactory.textMessage(textMessage);
                     message.encode(output);
-                } catch (TextStreamsException | IOException e) {
-                    onError.accept(new TextStreamsException("Problem sending text message", e));
+                } catch (StreamsMessageChannelException | IOException e) {
+                    onError.accept(new StreamsMessageChannelException("Problem sending text message", e));
                 }
             });
         }
@@ -42,8 +42,8 @@ public final class OutputPipe {
                 try {
                     BinaryMessage message = messageFactory.binaryMessage(binaryMessage);
                     message.encode(output);
-                } catch (TextStreamsException | IOException e) {
-                    onError.accept(new TextStreamsException("Problem sending binary message", e));
+                } catch (StreamsMessageChannelException | IOException e) {
+                    onError.accept(new StreamsMessageChannelException("Problem sending binary message", e));
                 }
             });
         }

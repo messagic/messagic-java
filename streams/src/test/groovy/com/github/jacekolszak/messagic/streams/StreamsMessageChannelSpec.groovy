@@ -9,16 +9,16 @@ import spock.lang.Timeout
 import spock.lang.Unroll
 
 @Timeout(5)
-final class TextStreamsMessageChannelSpec extends Specification {
+final class StreamsMessageChannelSpec extends Specification {
 
     private final PipedInputStream input = new PipedInputStream()
-    private final TextStreamsPipedOutputStream inputPipe = new TextStreamsPipedOutputStream(input)
+    private final StreamsPipedOutputStream inputPipe = new StreamsPipedOutputStream(input)
     private final PipedInputStream outputPipe = new PipedInputStream()
-    private final TextStreamsPipedOutputStream output = new TextStreamsPipedOutputStream(outputPipe)
+    private final StreamsPipedOutputStream output = new StreamsPipedOutputStream(outputPipe)
     private final InputStreamReader outputReader = new InputStreamReader(outputPipe)
 
     @Subject
-    private final TextStreamsMessageChannel channel = new TextStreamsMessageChannel(input, output)
+    private final StreamsMessageChannel channel = new StreamsMessageChannel(input, output)
 
     void cleanup() {
         channel.stop()
@@ -44,7 +44,7 @@ final class TextStreamsMessageChannelSpec extends Specification {
 
     void 'sending text message should be asynchronous'() {
         given:
-            TextStreamsMessageChannel channel = new TextStreamsMessageChannel(input, new ThreadBlockingOutputStream())
+            StreamsMessageChannel channel = new StreamsMessageChannel(input, new ThreadBlockingOutputStream())
             channel.start()
         when:
             channel.send('textMessage')
@@ -54,7 +54,7 @@ final class TextStreamsMessageChannelSpec extends Specification {
 
     void 'sending binary message should be asynchronous'() {
         given:
-            TextStreamsMessageChannel channel = new TextStreamsMessageChannel(input, new ThreadBlockingOutputStream())
+            StreamsMessageChannel channel = new StreamsMessageChannel(input, new ThreadBlockingOutputStream())
             channel.start()
         when:
             channel.send([1, 2, 3] as byte[])

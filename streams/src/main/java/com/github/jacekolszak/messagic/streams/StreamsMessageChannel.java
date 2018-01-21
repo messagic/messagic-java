@@ -11,7 +11,10 @@ import com.github.jacekolszak.messagic.streams.input.MessageStream;
 import com.github.jacekolszak.messagic.streams.output.MessageFactory;
 import com.github.jacekolszak.messagic.streams.output.OutputPipe;
 
-public final class TextStreamsMessageChannel implements MessageChannel {
+/**
+ * MessageChannel implementation using Input and OutputStream. Protocol is text-based, encoding binary messages using Base64.
+ */
+public final class StreamsMessageChannel implements MessageChannel {
 
     private final InputPipe input;
     private final OutputPipe output;
@@ -19,11 +22,11 @@ public final class TextStreamsMessageChannel implements MessageChannel {
 
     private State state = State.NEW;
 
-    public TextStreamsMessageChannel(InputStream input, OutputStream output) {
+    public StreamsMessageChannel(InputStream input, OutputStream output) {
         this(input, output, new Limits());
     }
 
-    public TextStreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
+    public StreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
         this.events = new ChannelEventsImpl(this);
         MessageStream messageStream = limits.messageStream(input, events);
         this.input = new InputPipe(messageStream, exception -> {

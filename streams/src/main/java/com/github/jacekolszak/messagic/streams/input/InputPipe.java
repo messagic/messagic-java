@@ -5,7 +5,7 @@ import java.io.InterruptedIOException;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
-import com.github.jacekolszak.messagic.streams.TextStreamsException;
+import com.github.jacekolszak.messagic.streams.StreamsMessageChannelException;
 
 public final class InputPipe {
 
@@ -30,7 +30,7 @@ public final class InputPipe {
             } catch (InterruptedIOException e) {
                 logger.info("Reading message stream interrupted");
             } catch (IOException e) {
-                onError.accept(new TextStreamsException("Problem during reading input stream", e));
+                onError.accept(new StreamsMessageChannelException("Problem during reading input stream", e));
             }
         });
         thread.start();
