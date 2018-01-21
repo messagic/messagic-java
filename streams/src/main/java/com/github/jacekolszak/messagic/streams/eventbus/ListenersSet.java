@@ -34,8 +34,8 @@ final class ListenersSet {
         }
     }
 
-    Set<Consumer<Event>> listenersForEventClass(Class<? extends Event> eventClass) {
-        EventType eventType = EventType.fromEventClass(eventClass);
+    Set<Consumer<Event>> listenersForEvent(Event event) {
+        EventType eventType = EventType.fromEventClass(event.getClass());
         return (Set) map.getOrDefault(eventType, Set.of());
     }
 

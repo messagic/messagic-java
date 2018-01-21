@@ -44,7 +44,7 @@ public final class EventBusImpl implements EventBus, Consumer<Event> {
 
     @Override
     public void accept(Event event) {
-        Set<Consumer<Event>> listeners = listenersSet.listenersForEventClass(event.getClass());
+        Set<Consumer<Event>> listeners = listenersSet.listenersForEvent(event);
         listeners.forEach(listener ->
                 dispatchThread.execute(() -> listener.accept(event))
         );
