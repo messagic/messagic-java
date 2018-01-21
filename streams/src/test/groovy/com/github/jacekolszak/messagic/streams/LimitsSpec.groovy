@@ -24,8 +24,8 @@ final class LimitsSpec extends Specification {
         given:
             Limits limits = new Limits(textMessageMaximumSize: 1)
             channel = new StreamsMessageChannel(input, output, limits)
-            channel.events().addListener(Error, errorListener)
-            channel.events().addListener(Stopped, stoppedListener)
+            channel.eventBus().addListener(Error, errorListener)
+            channel.eventBus().addListener(Stopped, stoppedListener)
             channel.start()
         when:
             inputPipe.writeTextMessage('ab')
@@ -38,8 +38,8 @@ final class LimitsSpec extends Specification {
         given:
             Limits limits = new Limits(binaryMessageMaximumSize: 1)
             channel = new StreamsMessageChannel(input, output, limits)
-            channel.events().addListener(Error, errorListener)
-            channel.events().addListener(Stopped, stoppedListener)
+            channel.eventBus().addListener(Error, errorListener)
+            channel.eventBus().addListener(Stopped, stoppedListener)
             channel.start()
         when:
             inputPipe.writeBinaryMessage('AQI=')
@@ -52,8 +52,8 @@ final class LimitsSpec extends Specification {
         given:
             Limits limits = new Limits(textMessageMaximumSize: 1)
             channel = new StreamsMessageChannel(input, output, limits)
-            channel.events().addListener(Error, errorListener)
-            channel.events().addListener(Stopped, stoppedListener)
+            channel.eventBus().addListener(Error, errorListener)
+            channel.eventBus().addListener(Stopped, stoppedListener)
             channel.start()
         when:
             channel.send('ab')
@@ -66,8 +66,8 @@ final class LimitsSpec extends Specification {
         given:
             Limits limits = new Limits(binaryMessageMaximumSize: 1)
             channel = new StreamsMessageChannel(input, output, limits)
-            channel.events().addListener(Error, errorListener)
-            channel.events().addListener(Stopped, stoppedListener)
+            channel.eventBus().addListener(Error, errorListener)
+            channel.eventBus().addListener(Stopped, stoppedListener)
             channel.start()
         when:
             channel.send([1, 2] as byte[])

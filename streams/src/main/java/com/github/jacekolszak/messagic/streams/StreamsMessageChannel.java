@@ -3,9 +3,9 @@ package com.github.jacekolszak.messagic.streams;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.github.jacekolszak.messagic.ChannelEvents;
+import com.github.jacekolszak.messagic.EventBus;
 import com.github.jacekolszak.messagic.MessageChannel;
-import com.github.jacekolszak.messagic.streams.events.ChannelEventsImpl;
+import com.github.jacekolszak.messagic.streams.events.EventBusImpl;
 import com.github.jacekolszak.messagic.streams.input.InputPipe;
 import com.github.jacekolszak.messagic.streams.input.MessageStream;
 import com.github.jacekolszak.messagic.streams.output.MessageFactory;
@@ -18,7 +18,7 @@ public final class StreamsMessageChannel implements MessageChannel {
 
     private final InputPipe input;
     private final OutputPipe output;
-    private final ChannelEventsImpl events;
+    private final EventBusImpl events;
 
     private State state = State.NEW;
 
@@ -27,7 +27,7 @@ public final class StreamsMessageChannel implements MessageChannel {
     }
 
     public StreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
-        this.events = new ChannelEventsImpl(this);
+        this.events = new EventBusImpl(this);
         MessageStream messageStream = limits.messageStream(input, events);
         this.input = new InputPipe(messageStream, exception -> {
             events.notifyError(exception);
@@ -41,7 +41,7 @@ public final class StreamsMessageChannel implements MessageChannel {
     }
 
     @Override
-    public ChannelEvents events() {
+    public EventBus eventBus() {
         return events;
     }
 

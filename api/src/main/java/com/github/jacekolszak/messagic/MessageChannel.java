@@ -6,7 +6,7 @@ package com.github.jacekolszak.messagic;
  */
 public interface MessageChannel {
 
-    ChannelEvents events();
+    EventBus eventBus();
 
     /**
      * Once started channel allows to send messages and accepts incoming ones. After successful start Started event is published.

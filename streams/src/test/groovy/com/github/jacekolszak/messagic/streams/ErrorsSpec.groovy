@@ -18,7 +18,7 @@ final class ErrorsSpec extends Specification {
     private StreamsMessageChannel channel = new StreamsMessageChannel(input, output)
 
     void setup() {
-        channel.events().addListener(Error, listener)
+        channel.eventBus().addListener(Error, listener)
         channel.start()
     }
 

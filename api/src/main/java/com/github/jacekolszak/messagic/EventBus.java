@@ -2,7 +2,7 @@ package com.github.jacekolszak.messagic;
 
 import java.util.function.Consumer;
 
-public interface ChannelEvents {
+public interface EventBus {
 
     <T extends Event> void addListener(Class<T> eventClass, Consumer<T> listener);
 

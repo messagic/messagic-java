@@ -3,22 +3,22 @@ package com.github.jacekolszak.messagic.streams.events;
 import java.util.function.Consumer;
 
 import com.github.jacekolszak.messagic.BinaryMessage;
-import com.github.jacekolszak.messagic.ChannelEvents;
 import com.github.jacekolszak.messagic.Error;
 import com.github.jacekolszak.messagic.Event;
+import com.github.jacekolszak.messagic.EventBus;
 import com.github.jacekolszak.messagic.MessageChannel;
 import com.github.jacekolszak.messagic.Started;
 import com.github.jacekolszak.messagic.Stopped;
 import com.github.jacekolszak.messagic.TextMessage;
 import com.github.jacekolszak.messagic.streams.input.IncomingMessageListener;
 
-public final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener {
+public final class EventBusImpl implements EventBus, IncomingMessageListener {
 
     private final ChannelDispatchThread dispatchThread;
     private final ListenersSet listenersSet;
     private final MessageChannel channel;
 
-    public ChannelEventsImpl(MessageChannel channel) {
+    public EventBusImpl(MessageChannel channel) {
         this.channel = channel;
         this.dispatchThread = new ChannelDispatchThread();
         this.listenersSet = new ListenersSet();
