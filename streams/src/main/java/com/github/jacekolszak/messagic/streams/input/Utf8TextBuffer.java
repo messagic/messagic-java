@@ -17,7 +17,7 @@ final class Utf8TextBuffer {
     String nextMessage(int limit) throws IOException {
         int size = 0;
         final StringBuilder builder = new StringBuilder();
-        while (size < limit) {
+        while (size <= limit) {
             char c = nextChar();
             if (c == '\n') {
                 return builder.toString();
