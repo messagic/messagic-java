@@ -5,14 +5,13 @@ import com.github.jacekolszak.messagic.Stopped
 import spock.lang.Specification
 import spock.lang.Subject
 
-final class LifecycleEventsSpec extends Specification {
+final class LifecycleSpec extends Specification {
 
-    private final StreamsPipedOutputStream inputPipe = new StreamsPipedOutputStream()
-    private final PipedInputStream input = inputPipe.inputStream()
-    private final StreamsPipedOutputStream output = new StreamsPipedOutputStream()
+    private final BlockingQueueInputStream inputStream = new BlockingQueueInputStream()
+    private final BlockingQueueOutputStream outputStream = new BlockingQueueOutputStream()
 
     @Subject
-    private StreamsMessageChannel channel = new StreamsMessageChannel(input, output)
+    private StreamsMessageChannel channel = new StreamsMessageChannel(inputStream, outputStream)
 
     void cleanup() {
         channel.stop()
@@ -56,7 +55,6 @@ final class LifecycleEventsSpec extends Specification {
             last.waitUntilExecuted()
     }
 
-
     void 'after stop should notify StoppedEvent listener'() {
         given:
             ConsumeOneMessage listener = new ConsumeOneMessage()
@@ -98,7 +96,6 @@ final class LifecycleEventsSpec extends Specification {
             last.waitUntilExecuted()
     }
 
-
     void 'removed StartedEvent listeners does not receive notifications'() {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
@@ -126,6 +123,39 @@ final class LifecycleEventsSpec extends Specification {
         then:
             last.waitUntilExecuted()
             !first.messageReceived()
+    }
+
+    void 'cant start channel when it was stopped'() {
+        given:
+            channel.start()
+            channel.stop()
+        when:
+            channel.start()
+        then:
+            thrown(IllegalStateException)
+    }
+
+    void 'should close the channel when InputStream is closed'() {
+        given:
+            AwaitingConsumer stoppedListener = new AwaitingConsumer()
+            channel.eventBus().addListener(Stopped, stoppedListener)
+            channel.start()
+        when:
+            inputStream.close()
+        then:
+            stoppedListener.waitUntilExecuted()
+    }
+
+    void 'should close the channel when OutputStream is closed'() {
+        given:
+            AwaitingConsumer stoppedListener = new AwaitingConsumer()
+            channel.eventBus().addListener(Stopped, stoppedListener)
+            channel.start()
+        when:
+            outputStream.close()
+            channel.send('a')
+        then:
+            stoppedListener.waitUntilExecuted()
     }
 
 }

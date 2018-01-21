@@ -16,22 +16,15 @@ final class LimitedBuffer {
     }
 
     byte[] readBinaryLine() throws IOException {
-        byte[] message = buffer.readLine(binaryMessageMaximumSize);
-        if (message == null) {
-            throw new IOException("Payload of received binary message exceeded maximum size");
-        }
-        return message;
+        return buffer.readLine(binaryMessageMaximumSize);
     }
 
     byte[] readTextLine() throws IOException {
-        byte[] message = buffer.readLine(textMessageMaximumSize);
-        if (message == null) {
-            throw new IOException("Payload of received text message exceeded maximum size");
-        }
-        return message;
+        return buffer.readLine(textMessageMaximumSize);
     }
 
     int readByte() throws IOException {
         return buffer.readByte();
     }
+
 }

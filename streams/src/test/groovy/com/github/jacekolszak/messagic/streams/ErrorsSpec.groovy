@@ -8,14 +8,12 @@ import spock.lang.Timeout
 @Timeout(5)
 final class ErrorsSpec extends Specification {
 
-    private final StreamsPipedOutputStream inputPipe = new StreamsPipedOutputStream()
-    private final PipedInputStream input = inputPipe.inputStream()
-    private final PipedInputStream outputPipe = new PipedInputStream()
-    private final StreamsPipedOutputStream output = new StreamsPipedOutputStream(outputPipe)
+    private final BlockingQueueInputStream inputStream = new BlockingQueueInputStream()
+    private final BlockingQueueOutputStream outputStream = new BlockingQueueOutputStream()
     private final ConsumeOneMessage<Error> listener = new ConsumeOneMessage()
 
     @Subject
-    private StreamsMessageChannel channel = new StreamsMessageChannel(input, output)
+    private StreamsMessageChannel channel = new StreamsMessageChannel(inputStream, outputStream)
 
     void setup() {
         channel.eventBus().addListener(Error, listener)
@@ -28,7 +26,7 @@ final class ErrorsSpec extends Specification {
 
     void 'should notify Error listeners about closed InputStream'() {
         when:
-            inputPipe.close()
+            inputStream.close()
         then:
             listener.message().exception() instanceof StreamsMessageChannelException
             listener.message().channel() == channel
@@ -36,7 +34,15 @@ final class ErrorsSpec extends Specification {
 
     void 'should notify Error listeners about problem with decoding binary message'() {
         when:
-            inputPipe.writeBinaryMessage('*')
+            inputStream.writeBinaryMessage('*')
+        then:
+            listener.message().exception() instanceof StreamsMessageChannelException
+            listener.message().channel() == channel
+    }
+
+    void 'should notify Error listeners about problem with reading InputStream'() {
+        when:
+            inputStream.readThrowsException()
         then:
             listener.message().exception() instanceof StreamsMessageChannelException
             listener.message().channel() == channel
@@ -44,7 +50,7 @@ final class ErrorsSpec extends Specification {
 
     void 'should notify Error listeners about problem during sending text message'() {
         when:
-            outputPipe.close()
+            outputStream.close()
             channel.send('textMessage')
         then:
             listener.message().exception() instanceof StreamsMessageChannelException
@@ -53,7 +59,7 @@ final class ErrorsSpec extends Specification {
 
     void 'should notify Error listeners about problem during sending binary message'() {
         when:
-            outputPipe.close()
+            outputStream.close()
             channel.send([1, 2, 3] as byte[])
         then:
             listener.message().exception() instanceof StreamsMessageChannelException

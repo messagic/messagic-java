@@ -7,9 +7,8 @@ import spock.lang.Subject
 
 final class LimitsSpec extends Specification {
 
-    private final StreamsPipedOutputStream inputPipe = new StreamsPipedOutputStream()
-    private final PipedInputStream input = inputPipe.inputStream()
-    private final StreamsPipedOutputStream output = new StreamsPipedOutputStream()
+    private final BlockingQueueInputStream inputStream = new BlockingQueueInputStream()
+    private final BlockingQueueOutputStream outputStream = new BlockingQueueOutputStream()
     private final ConsumeOneMessage<Error> errorListener = new ConsumeOneMessage()
     private final AwaitingConsumer stoppedListener = new AwaitingConsumer()
 
@@ -23,12 +22,12 @@ final class LimitsSpec extends Specification {
     void 'should close the channel when incoming text message is too big'() {
         given:
             Limits limits = new Limits(textMessageMaximumSize: 1)
-            channel = new StreamsMessageChannel(input, output, limits)
+            channel = new StreamsMessageChannel(inputStream, outputStream, limits)
             channel.eventBus().addListener(Error, errorListener)
             channel.eventBus().addListener(Stopped, stoppedListener)
             channel.start()
         when:
-            inputPipe.writeTextMessage('ab')
+            inputStream.writeTextMessage('ab')
         then:
             errorListener.message().exception() instanceof StreamsMessageChannelException
             stoppedListener.waitUntilExecuted()
@@ -37,12 +36,12 @@ final class LimitsSpec extends Specification {
     void 'should close the channel when incoming binary message is too big'() {
         given:
             Limits limits = new Limits(binaryMessageMaximumSize: 1)
-            channel = new StreamsMessageChannel(input, output, limits)
+            channel = new StreamsMessageChannel(inputStream, outputStream, limits)
             channel.eventBus().addListener(Error, errorListener)
             channel.eventBus().addListener(Stopped, stoppedListener)
             channel.start()
         when:
-            inputPipe.writeBinaryMessage('AQI=')
+            inputStream.writeBinaryMessage('AQI=')
         then:
             errorListener.message().exception() instanceof StreamsMessageChannelException
             stoppedListener.waitUntilExecuted()
@@ -51,7 +50,7 @@ final class LimitsSpec extends Specification {
     void 'should close the channel when outgoing text message is too big'() {
         given:
             Limits limits = new Limits(textMessageMaximumSize: 1)
-            channel = new StreamsMessageChannel(input, output, limits)
+            channel = new StreamsMessageChannel(inputStream, outputStream, limits)
             channel.eventBus().addListener(Error, errorListener)
             channel.eventBus().addListener(Stopped, stoppedListener)
             channel.start()
@@ -65,7 +64,7 @@ final class LimitsSpec extends Specification {
     void 'should close the channel when outgoing binary message is too big'() {
         given:
             Limits limits = new Limits(binaryMessageMaximumSize: 1)
-            channel = new StreamsMessageChannel(input, output, limits)
+            channel = new StreamsMessageChannel(inputStream, outputStream, limits)
             channel.eventBus().addListener(Error, errorListener)
             channel.eventBus().addListener(Stopped, stoppedListener)
             channel.start()

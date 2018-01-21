@@ -1,43 +1,39 @@
 package com.github.jacekolszak.messagic.streams.input;
 
-import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
 final class Buffer {
 
-    private final BufferedInputStream input;
+    private final InputStream inputStream;
 
     Buffer(InputStream inputStream) {
-        input = new BufferedInputStream(inputStream);
+        this.inputStream = inputStream;
     }
 
     byte[] readLine(int limit) throws IOException {
         int size = 0;
-        input.mark(limit);
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         while (size < limit) {
             int b = readByte();
             if (b == '\n') {
-                input.reset();
-                byte[] message = new byte[size];
-                if (input.read(message) == -1) {
-                    throw new EOFException();
-                }
-                readByte();
-                return message;
+                return buffer.toByteArray();
             } else {
+                buffer.write(b);
                 size += 1;
             }
         }
-        return null;
+        throw new IOException("Payload of received message exceeded maximum size");
     }
 
     int readByte() throws IOException {
-        int b = input.read();
+        int b = inputStream.read();
         if (b == -1) {
             throw new EOFException();
         }
         return b;
     }
+
 }

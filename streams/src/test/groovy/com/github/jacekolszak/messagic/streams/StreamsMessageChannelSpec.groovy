@@ -1,7 +1,6 @@
 package com.github.jacekolszak.messagic.streams
 
 import com.github.jacekolszak.messagic.BinaryMessage
-import com.github.jacekolszak.messagic.Stopped
 import com.github.jacekolszak.messagic.TextMessage
 import spock.lang.Specification
 import spock.lang.Subject
@@ -11,14 +10,11 @@ import spock.lang.Unroll
 @Timeout(5)
 final class StreamsMessageChannelSpec extends Specification {
 
-    private final PipedInputStream input = new PipedInputStream()
-    private final StreamsPipedOutputStream inputPipe = new StreamsPipedOutputStream(input)
-    private final PipedInputStream outputPipe = new PipedInputStream()
-    private final StreamsPipedOutputStream output = new StreamsPipedOutputStream(outputPipe)
-    private final InputStreamReader outputReader = new InputStreamReader(outputPipe)
+    private final BlockingQueueInputStream inputStream = new BlockingQueueInputStream()
+    private final BlockingQueueOutputStream outputStream = new BlockingQueueOutputStream()
 
     @Subject
-    private final StreamsMessageChannel channel = new StreamsMessageChannel(input, output)
+    private final StreamsMessageChannel channel = new StreamsMessageChannel(inputStream, outputStream)
 
     void cleanup() {
         channel.stop()
@@ -30,7 +26,7 @@ final class StreamsMessageChannelSpec extends Specification {
         when:
             channel.send('textMessage')
         then:
-            outputReader.readLine() == 'textMessage'
+            outputStream.nextLine() == 'textMessage'
     }
 
     void 'should send binary message to output stream'() {
@@ -39,12 +35,12 @@ final class StreamsMessageChannelSpec extends Specification {
         when:
             channel.send([1, 2, 3] as byte[])
         then:
-            outputReader.readLine() == '$AQID'
+            outputStream.nextLine() == '$AQID'
     }
 
     void 'sending text message should be asynchronous'() {
         given:
-            StreamsMessageChannel channel = new StreamsMessageChannel(input, new ThreadBlockingOutputStream())
+            StreamsMessageChannel channel = new StreamsMessageChannel(inputStream, new ThreadBlockingOutputStream())
             channel.start()
         when:
             channel.send('textMessage')
@@ -54,7 +50,7 @@ final class StreamsMessageChannelSpec extends Specification {
 
     void 'sending binary message should be asynchronous'() {
         given:
-            StreamsMessageChannel channel = new StreamsMessageChannel(input, new ThreadBlockingOutputStream())
+            StreamsMessageChannel channel = new StreamsMessageChannel(inputStream, new ThreadBlockingOutputStream())
             channel.start()
         when:
             channel.send([1, 2, 3] as byte[])
@@ -68,7 +64,7 @@ final class StreamsMessageChannelSpec extends Specification {
         when:
             channel.send('')
         then:
-            outputReader.readLine() == ''
+            outputStream.nextLine() == ''
     }
 
     void 'should send empty binary message to output stream'() {
@@ -77,7 +73,7 @@ final class StreamsMessageChannelSpec extends Specification {
         when:
             channel.send(new byte[0])
         then:
-            outputReader.readLine() == '$'
+            outputStream.nextLine() == '$'
     }
 
     @Unroll
@@ -87,7 +83,7 @@ final class StreamsMessageChannelSpec extends Specification {
         when:
             channel.send(message)
         then:
-            outputReader.readLine() == line
+            outputStream.nextLine() == line
         where:
             message    || line
             '#message' || '##message'
@@ -101,7 +97,7 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.eventBus().addListener(TextMessage, listener)
             channel.start()
         when:
-            inputPipe.write(inputString.bytes)
+            inputStream.write(inputString.bytes)
         then:
             listener.message().text() == expectedMessage
         where:
@@ -119,7 +115,7 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.eventBus().addListener(BinaryMessage, listener)
             channel.start()
         when:
-            inputPipe.write(inputString.bytes)
+            inputStream.write(inputString.bytes)
         then:
             listener.message().bytes() == expectedMessage as byte[]
         where:
@@ -135,8 +131,8 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.eventBus().addListener(TextMessage, listener)
             channel.start()
         when:
-            inputPipe.writeTextMessage('1')
-            inputPipe.writeTextMessage('2')
+            inputStream.writeTextMessage('1')
+            inputStream.writeTextMessage('2')
         then:
             listener.messages()*.text() == ['1', '2']
     }
@@ -148,7 +144,7 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.start()
         when:
             channel.stop()
-            inputPipe.writeTextMessage()
+            inputStream.writeTextMessage()
         then:
             Thread.sleep(1000) // TODO
             !listener.messageReceived()
@@ -162,7 +158,7 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.send('afterStop')
         then:
             Thread.sleep(1000) // TODO
-            outputPipe.available() == 0
+            outputStream.available() == 0
     }
 
     @Unroll
@@ -175,7 +171,7 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.eventBus().addListener(TextMessage, last)
             channel.start()
         when:
-            inputPipe.writeTextMessage()
+            inputStream.writeTextMessage()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
@@ -192,7 +188,7 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.eventBus().addListener(BinaryMessage, last)
             channel.start()
         when:
-            inputPipe.writeBinaryMessage()
+            inputStream.writeBinaryMessage()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
@@ -207,7 +203,7 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.eventBus().addListener(TextMessage, last)
             channel.start()
         when:
-            inputPipe.writeTextMessage()
+            inputStream.writeTextMessage()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
@@ -221,7 +217,7 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.eventBus().addListener(BinaryMessage, last)
             channel.start()
         when:
-            inputPipe.writeBinaryMessage()
+            inputStream.writeBinaryMessage()
         then:
             first.waitUntilExecuted()
             last.waitUntilExecuted()
@@ -236,7 +232,7 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.start()
         when:
             channel.eventBus().removeListener(TextMessage, first)
-            inputPipe.writeTextMessage()
+            inputStream.writeTextMessage()
         then:
             last.waitUntilExecuted()
             !first.messageReceived()
@@ -251,43 +247,10 @@ final class StreamsMessageChannelSpec extends Specification {
             channel.start()
         when:
             channel.eventBus().removeListener(BinaryMessage, first)
-            inputPipe.writeBinaryMessage()
+            inputStream.writeBinaryMessage()
         then:
             last.waitUntilExecuted()
             !first.messageReceived()
-    }
-
-    void 'cant start channel when it was stopped'() {
-        given:
-            channel.start()
-            channel.stop()
-        when:
-            channel.start()
-        then:
-            thrown(IllegalStateException)
-    }
-
-    void 'should close the channel when InputStream is closed'() {
-        given:
-            AwaitingConsumer stoppedListener = new AwaitingConsumer()
-            channel.eventBus().addListener(Stopped, stoppedListener)
-            channel.start()
-        when:
-            inputPipe.close()
-        then:
-            stoppedListener.waitUntilExecuted()
-    }
-
-    void 'should close the channel when OutputStream is closed'() {
-        given:
-            AwaitingConsumer stoppedListener = new AwaitingConsumer()
-            channel.eventBus().addListener(Stopped, stoppedListener)
-            channel.start()
-        when:
-            outputPipe.close()
-            channel.send('a')
-        then:
-            stoppedListener.waitUntilExecuted()
     }
 
 }
