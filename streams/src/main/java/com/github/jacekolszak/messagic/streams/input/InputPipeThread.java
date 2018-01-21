@@ -8,18 +8,18 @@ import java.util.logging.Logger;
 import com.github.jacekolszak.messagic.Event;
 import com.github.jacekolszak.messagic.streams.StreamsMessageChannelException;
 
-public final class InputPipe {
+public final class InputPipeThread {
 
-    private static final Logger logger = Logger.getLogger(InputPipe.class.getName());
+    private static final Logger logger = Logger.getLogger(InputPipeThread.class.getName());
 
-    private final MessageStream messageStream;
+    private final MessageEventsStream messageEventsStream;
     private final Consumer<Event> onMessage;
     private final Consumer<Exception> onError;
     private Thread thread;
     private volatile boolean stopped;
 
-    public InputPipe(MessageStream messageStream, Consumer<Event> onMessage, Consumer<Exception> onError) {
-        this.messageStream = messageStream;
+    public InputPipeThread(MessageEventsStream messageEventsStream, Consumer<Event> onMessage, Consumer<Exception> onError) {
+        this.messageEventsStream = messageEventsStream;
         this.onMessage = onMessage;
         this.onError = onError;
     }
@@ -28,8 +28,8 @@ public final class InputPipe {
         thread = new Thread(() -> {
             try {
                 while (!stopped) {
-                    Event event = messageStream.nextMessageEvent();
-                    onMessage.accept(event);
+                    Event messageEvent = messageEventsStream.nextMessageEvent();
+                    onMessage.accept(messageEvent);
                 }
             } catch (InterruptedIOException e) {
                 logger.info("Reading message stream interrupted");

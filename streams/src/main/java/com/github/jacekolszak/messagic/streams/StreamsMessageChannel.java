@@ -6,8 +6,8 @@ import java.io.OutputStream;
 import com.github.jacekolszak.messagic.EventBus;
 import com.github.jacekolszak.messagic.MessageChannel;
 import com.github.jacekolszak.messagic.streams.eventbus.EventBusImpl;
-import com.github.jacekolszak.messagic.streams.input.InputPipe;
-import com.github.jacekolszak.messagic.streams.input.MessageStream;
+import com.github.jacekolszak.messagic.streams.input.InputPipeThread;
+import com.github.jacekolszak.messagic.streams.input.MessageEventsStream;
 import com.github.jacekolszak.messagic.streams.output.MessageFactory;
 import com.github.jacekolszak.messagic.streams.output.OutputPipe;
 
@@ -16,8 +16,8 @@ import com.github.jacekolszak.messagic.streams.output.OutputPipe;
  */
 public final class StreamsMessageChannel implements MessageChannel {
 
-    private final InputPipe input;
-    private final OutputPipe output;
+    private final InputPipeThread inputPipeThread;
+    private final OutputPipe outputPipe;
     private final EventBusImpl events;
 
     private State state = State.NEW;
@@ -27,14 +27,14 @@ public final class StreamsMessageChannel implements MessageChannel {
     }
 
     public StreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
-        this.events = new EventBusImpl();
-        MessageStream messageStream = limits.messageStream(input, this);
-        this.input = new InputPipe(messageStream, events, exception -> {
+        events = new EventBusImpl();
+        MessageEventsStream messageEventsStream = limits.messageStream(input, this);
+        inputPipeThread = new InputPipeThread(messageEventsStream, events, exception -> {
             events.accept(new ErrorEvent(this, exception));
             stop();
         });
         MessageFactory messageFactory = limits.messageFactory();
-        this.output = new OutputPipe(output, messageFactory, exception -> {
+        outputPipe = new OutputPipe(output, messageFactory, exception -> {
             events.accept(new ErrorEvent(this, exception));
             stop();
         });
@@ -48,7 +48,7 @@ public final class StreamsMessageChannel implements MessageChannel {
     @Override
     public void start() {
         if (state == State.NEW) {
-            input.start();
+            inputPipeThread.start();
             state = State.STARTED;
             events.start();
             events.accept(new StartedEvent(this));
@@ -59,21 +59,21 @@ public final class StreamsMessageChannel implements MessageChannel {
 
     @Override
     public void send(String textMessage) {
-        output.send(textMessage);
+        outputPipe.send(textMessage);
     }
 
     @Override
     public void send(byte[] binaryMessage) {
-        output.send(binaryMessage);
+        outputPipe.send(binaryMessage);
     }
 
     @Override
     public void stop() {
         if (state == State.STARTED) {
             try {
-                this.input.stop();
+                this.inputPipeThread.stop();
             } finally {
-                this.output.stop();
+                this.outputPipe.stop();
             }
             state = State.STOPPED;
             events.accept(new StoppedEvent(this));

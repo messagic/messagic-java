@@ -1,6 +1,8 @@
 package com.github.jacekolszak.messagic.streams;
 
-public class StreamsMessageChannelException extends Exception {
+import java.io.IOException;
+
+public class StreamsMessageChannelException extends IOException {
 
     public StreamsMessageChannelException(String message) {
         super(message);

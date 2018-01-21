@@ -29,7 +29,7 @@ public final class OutputPipe {
                 try {
                     TextMessage message = messageFactory.textMessage(textMessage);
                     message.encode(output);
-                } catch (StreamsMessageChannelException | IOException e) {
+                } catch (IOException e) {
                     onError.accept(new StreamsMessageChannelException("Problem sending text message", e));
                 }
             });
@@ -42,7 +42,7 @@ public final class OutputPipe {
                 try {
                     BinaryMessage message = messageFactory.binaryMessage(binaryMessage);
                     message.encode(output);
-                } catch (StreamsMessageChannelException | IOException e) {
+                } catch (IOException e) {
                     onError.accept(new StreamsMessageChannelException("Problem sending binary message", e));
                 }
             });

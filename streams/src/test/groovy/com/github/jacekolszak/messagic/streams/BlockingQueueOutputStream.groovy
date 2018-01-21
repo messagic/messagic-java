@@ -16,6 +16,7 @@ final class BlockingQueueOutputStream extends OutputStream {
         bytes.put(b)
     }
 
+    // TODO This should be fixed - because now it does not care about UTF-8 encoding!
     String nextLine() {
         ByteArrayOutputStream out = new ByteArrayOutputStream()
         int character

@@ -25,7 +25,7 @@ public final class MessageFactory {
 
     BinaryMessage binaryMessage(byte[] bytes) throws StreamsMessageChannelException {
         if (bytes.length > binaryMessageMaximumSize) {
-            String encodedMessageFragment = Base64.getEncoder().encodeToString(Arrays.copyOfRange(bytes, 0, binaryMessageMaximumSize));
+            String encodedMessageFragment = Base64.getEncoder().encodeToString(Arrays.copyOfRange(bytes, 0, Math.min(binaryMessageMaximumSize, 256)));
             String error = String.format("Outgoing binary message \"%s...\" is bigger than allowed %s bytes", encodedMessageFragment, binaryMessageMaximumSize);
             throw new StreamsMessageChannelException(error);
         }

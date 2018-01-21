@@ -12,12 +12,12 @@ final class BlockingQueueInputStream extends InputStream {
 
     void write(byte[] bytes) {
         for (byte b : bytes) {
-            this.bytesQueue.put((int) b);
+            this.bytesQueue.put(Byte.toUnsignedInt(b));
         }
     }
 
     void writeTextMessage(String textMessage) {
-        write("$textMessage\n".bytes)
+        write((textMessage + '\n').bytes)
     }
 
     void writeTextMessage() {

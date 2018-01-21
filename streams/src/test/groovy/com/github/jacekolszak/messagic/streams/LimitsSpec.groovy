@@ -4,7 +4,9 @@ import com.github.jacekolszak.messagic.Error
 import com.github.jacekolszak.messagic.Stopped
 import spock.lang.Specification
 import spock.lang.Subject
+import spock.lang.Timeout
 
+@Timeout(5)
 final class LimitsSpec extends Specification {
 
     private final BlockingQueueInputStream inputStream = new BlockingQueueInputStream()
