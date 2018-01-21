@@ -12,19 +12,10 @@ public final class InputPipeThread {
 
     private static final Logger logger = Logger.getLogger(InputPipeThread.class.getName());
 
-    private final MessageEventsStream messageEventsStream;
-    private final Consumer<Event> onMessage;
-    private final Consumer<Exception> onError;
-    private Thread thread;
+    private final Thread thread;
     private volatile boolean stopped;
 
     public InputPipeThread(MessageEventsStream messageEventsStream, Consumer<Event> onMessage, Consumer<Exception> onError) {
-        this.messageEventsStream = messageEventsStream;
-        this.onMessage = onMessage;
-        this.onError = onError;
-    }
-
-    public void start() {
         thread = new Thread(() -> {
             try {
                 while (!stopped) {
@@ -37,6 +28,9 @@ public final class InputPipeThread {
                 onError.accept(new StreamsMessageChannelException("Problem during reading input stream", e));
             }
         });
+    }
+
+    public void start() {
         thread.start();
     }
 

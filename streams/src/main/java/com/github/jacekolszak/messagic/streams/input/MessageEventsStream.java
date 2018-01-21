@@ -1,7 +1,6 @@
 package com.github.jacekolszak.messagic.streams.input;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import com.github.jacekolszak.messagic.BinaryMessage;
 import com.github.jacekolszak.messagic.Event;
@@ -13,8 +12,8 @@ public final class MessageEventsStream {
     private final DecodingBuffer buffer;
     private final MessageChannel channel;
 
-    public MessageEventsStream(InputStream input, MessageChannel channel, int textMessageMaximumSize, int binaryMessageMaximumSize) {
-        this.buffer = new DecodingBuffer(input, textMessageMaximumSize, binaryMessageMaximumSize);
+    public MessageEventsStream(DecodingBuffer buffer, MessageChannel channel) {
+        this.buffer = buffer;
         this.channel = channel;
     }
 

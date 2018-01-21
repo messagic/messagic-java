@@ -34,7 +34,7 @@ final class Utf8TextBuffer {
     }
 
     // TODO This class is ugly. How is that possible that there is no way to read character as soon as it is available in stream? (InputStreamReader blocks infinitely because of excessive buffering)
-    private class Utf8EncodedStream {
+    private final class Utf8EncodedStream {
 
         private final CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
         private final InputStream inputStream;

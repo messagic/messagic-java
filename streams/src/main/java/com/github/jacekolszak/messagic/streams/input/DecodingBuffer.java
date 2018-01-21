@@ -6,13 +6,13 @@ import java.util.Base64;
 
 import com.github.jacekolszak.messagic.streams.StreamsMessageChannelException;
 
-final class DecodingBuffer {
+public final class DecodingBuffer {
 
     private final Utf8TextBuffer textBuffer;
     private final int binaryMessageMaximumSize;
     private final int textMessageMaximumSize;
 
-    DecodingBuffer(InputStream input, int textMessageMaximumSize, int binaryMessageMaximumSize) {
+    public DecodingBuffer(InputStream input, int textMessageMaximumSize, int binaryMessageMaximumSize) {
         this.textBuffer = new Utf8TextBuffer(input);
         this.binaryMessageMaximumSize = binaryMessageMaximumSize;
         this.textMessageMaximumSize = textMessageMaximumSize;
