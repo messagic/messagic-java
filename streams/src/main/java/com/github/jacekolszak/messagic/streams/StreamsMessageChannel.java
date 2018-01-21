@@ -12,7 +12,7 @@ import com.github.jacekolszak.messagic.streams.output.MessageFactory;
 import com.github.jacekolszak.messagic.streams.output.OutputPipe;
 
 /**
- * MessageChannel implementation using Input and OutputStream. Protocol is text-based, encoding binary messages using Base64.
+ * MessageChannel implementation using Input and OutputStream. Protocol is text-based in UTF-8 encoding. Binary messages are encoded using Base64. Every message is separated using new line "\n".
  */
 public final class StreamsMessageChannel implements MessageChannel {
 
