@@ -10,6 +10,7 @@ import com.github.jacekolszak.messagic.MessageChannel;
 import com.github.jacekolszak.messagic.Started;
 import com.github.jacekolszak.messagic.Stopped;
 import com.github.jacekolszak.messagic.TextMessage;
+import com.github.jacekolszak.messagic.streams.input.IncomingMessageListener;
 
 public final class ChannelEventsImpl implements ChannelEvents, IncomingMessageListener {
 
@@ -67,8 +68,7 @@ public final class ChannelEventsImpl implements ChannelEvents, IncomingMessageLi
 
     @Override
     public void textMessageFound(String textMessage) {
-        TextMessage event = new TextMessageImpl(textMessage);
-        notify(event);
+        notify(new TextMessageEvent(channel, textMessage));
     }
 
     private void notify(TextMessage event) {
@@ -80,8 +80,7 @@ public final class ChannelEventsImpl implements ChannelEvents, IncomingMessageLi
 
     @Override
     public void binaryMessageFound(byte[] binaryMessage) {
-        BinaryMessage event = new BinaryMessageImpl(binaryMessage);
-        notify(event);
+        notify(new BinaryMessageEvent(channel, binaryMessage));
     }
 
     private void notify(BinaryMessage event) {
@@ -92,8 +91,7 @@ public final class ChannelEventsImpl implements ChannelEvents, IncomingMessageLi
     }
 
     public void notifyError(Exception exception) {
-        Error event = new ErrorImpl(exception);
-        notify(event);
+        notify(new ErrorEvent(channel, exception));
     }
 
     private void notify(Error event) {
@@ -103,62 +101,4 @@ public final class ChannelEventsImpl implements ChannelEvents, IncomingMessageLi
                 );
     }
 
-    private class TextMessageImpl implements TextMessage {
-
-        private final String textMessage;
-
-        TextMessageImpl(String textMessage) {
-            this.textMessage = textMessage;
-        }
-
-        @Override
-        public MessageChannel channel() {
-            return channel;
-        }
-
-        @Override
-        public String text() {
-            return textMessage;
-        }
-    }
-
-    private class BinaryMessageImpl implements BinaryMessage {
-
-        private final byte[] binaryMessage;
-
-        BinaryMessageImpl(byte[] binaryMessage) {
-            this.binaryMessage = binaryMessage;
-        }
-
-        @Override
-        public MessageChannel channel() {
-            return channel;
-        }
-
-        @Override
-        public byte[] bytes() {
-            return binaryMessage;
-
-        }
-    }
-
-    private class ErrorImpl implements Error {
-
-        private final Exception exception;
-
-        ErrorImpl(Exception exception) {
-            this.exception = exception;
-        }
-
-        @Override
-        public MessageChannel channel() {
-            return channel;
-        }
-
-        @Override
-        public Exception exception() {
-            return exception;
-        }
-
-    }
 }

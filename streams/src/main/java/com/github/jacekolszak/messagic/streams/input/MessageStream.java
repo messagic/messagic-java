@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
 
-import com.github.jacekolszak.messagic.streams.events.IncomingMessageListener;
-
 public final class MessageStream {
 
     private final LimitedBuffer buffer;

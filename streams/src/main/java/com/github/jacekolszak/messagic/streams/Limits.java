@@ -2,7 +2,7 @@ package com.github.jacekolszak.messagic.streams;
 
 import java.io.InputStream;
 
-import com.github.jacekolszak.messagic.streams.events.IncomingMessageListener;
+import com.github.jacekolszak.messagic.streams.input.IncomingMessageListener;
 import com.github.jacekolszak.messagic.streams.input.MessageStream;
 import com.github.jacekolszak.messagic.streams.output.MessageFactory;
 
