@@ -3,14 +3,10 @@ Java implementation of [Messagic](https://github.com/jacekolszak/messagic), a hi
 
 [![CircleCI](https://circleci.com/gh/jacekolszak/messagic-java.svg?style=svg)](https://circleci.com/gh/jacekolszak/messagic-java)
 
-## API implementations
-
-### Streams 
-
-Simple text-based protocol using Input and OutputStreams:
+Example:
 
 ```Java
-MessageChannel channel = new StreamsMessageChannel(System.in, System.out);
+MessageChannel channel = // construct the channel using available implementation 
 channel.addListener(TextMessage.class, msg -> {
     ...
 });
@@ -18,6 +14,6 @@ channel.start();
 channel.send("Hello");
 ```
 
-Can be used with stdout/stderr, TCP sockets etc. If used over TCP then netcat or socat command-line tools can be used to debug. Telnet does not work, because it uses ASCII, not UTF-8.
+## Implementations
 
-[More examples here](implementations/streams/src/test/java/com/github/jacekolszak/messagic/streams/examples)
++ [Streams](implementations/stream) - Simple text-based protocol; uses Java's Input and OutputStreams abstractions
