@@ -2,10 +2,11 @@ package com.github.jacekolszak.messagic.streams;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.function.Consumer;
 
-import com.github.jacekolszak.messagic.EventBus;
+import com.github.jacekolszak.messagic.Event;
 import com.github.jacekolszak.messagic.MessageChannel;
-import com.github.jacekolszak.messagic.streams.eventbus.EventBusImpl;
+import com.github.jacekolszak.messagic.streams.eventbus.EventBus;
 import com.github.jacekolszak.messagic.streams.input.DecodingBuffer;
 import com.github.jacekolszak.messagic.streams.input.InputPipeThread;
 import com.github.jacekolszak.messagic.streams.input.MessageEventsStream;
@@ -19,7 +20,7 @@ public final class StreamsMessageChannel implements MessageChannel {
 
     private final InputPipeThread inputPipeThread;
     private final OutputPipe outputPipe;
-    private final EventBusImpl events;
+    private final EventBus eventsBus;
 
     private State state = State.NEW;
 
@@ -28,23 +29,28 @@ public final class StreamsMessageChannel implements MessageChannel {
     }
 
     public StreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
-        events = new EventBusImpl();
+        eventsBus = new EventBus();
         DecodingBuffer decodingBuffer = limits.decodingBuffer(input);
         MessageEventsStream messageEventsStream = new MessageEventsStream(decodingBuffer, this);
-        inputPipeThread = new InputPipeThread(messageEventsStream, events, exception -> {
-            events.accept(new ErrorEvent(this, exception));
+        inputPipeThread = new InputPipeThread(messageEventsStream, eventsBus, exception -> {
+            eventsBus.accept(new ErrorEvent(this, exception));
             stop();
         });
         MessageFactory messageFactory = limits.messageFactory();
         outputPipe = new OutputPipe(output, messageFactory, exception -> {
-            events.accept(new ErrorEvent(this, exception));
+            eventsBus.accept(new ErrorEvent(this, exception));
             stop();
         });
     }
 
     @Override
-    public EventBus eventBus() {
-        return events;
+    public <T extends Event> void addListener(Class<T> eventClass, Consumer<T> listener) {
+        eventsBus.addListener(eventClass, listener);
+    }
+
+    @Override
+    public <T extends Event> void removeListener(Class<T> eventClass, Consumer<T> listener) {
+        eventsBus.removeListener(eventClass, listener);
     }
 
     @Override
@@ -52,8 +58,8 @@ public final class StreamsMessageChannel implements MessageChannel {
         if (state == State.NEW) {
             inputPipeThread.start();
             state = State.STARTED;
-            events.start();
-            events.accept(new StartedEvent(this));
+            eventsBus.start();
+            eventsBus.accept(new StartedEvent(this));
         } else if (state == State.STOPPED) {
             throw new IllegalStateException("Can't start channel which was stopped before");
         }
@@ -78,8 +84,8 @@ public final class StreamsMessageChannel implements MessageChannel {
                 this.outputPipe.stop();
             }
             state = State.STOPPED;
-            events.accept(new StoppedEvent(this));
-            events.stop();
+            eventsBus.accept(new StoppedEvent(this));
+            eventsBus.stop();
         }
     }
 

@@ -21,7 +21,7 @@ final class LifecycleSpec extends Specification {
     void 'after start should notify StartedEvent listener'() {
         given:
             ConsumeOneMessage listener = new ConsumeOneMessage()
-            channel.eventBus().addListener(Started, listener)
+            channel.addListener(Started, listener)
         when:
             channel.start()
         then:
@@ -33,8 +33,8 @@ final class LifecycleSpec extends Specification {
             List<AwaitingConsumer> executionOrder = []
             AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
             AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
-            channel.eventBus().addListener(Started, first)
-            channel.eventBus().addListener(Started, last)
+            channel.addListener(Started, first)
+            channel.addListener(Started, last)
         when:
             channel.start()
         then:
@@ -47,8 +47,8 @@ final class LifecycleSpec extends Specification {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.eventBus().addListener(Started, first)
-            channel.eventBus().addListener(Started, last)
+            channel.addListener(Started, first)
+            channel.addListener(Started, last)
         when:
             channel.start()
         then:
@@ -59,7 +59,7 @@ final class LifecycleSpec extends Specification {
     void 'after stop should notify StoppedEvent listener'() {
         given:
             ConsumeOneMessage listener = new ConsumeOneMessage()
-            channel.eventBus().addListener(Stopped, listener)
+            channel.addListener(Stopped, listener)
             channel.start()
         when:
             channel.stop()
@@ -72,8 +72,8 @@ final class LifecycleSpec extends Specification {
             List<AwaitingConsumer> executionOrder = []
             AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
             AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
-            channel.eventBus().addListener(Stopped, first)
-            channel.eventBus().addListener(Stopped, last)
+            channel.addListener(Stopped, first)
+            channel.addListener(Stopped, last)
             channel.start()
         when:
             channel.stop()
@@ -87,8 +87,8 @@ final class LifecycleSpec extends Specification {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.eventBus().addListener(Stopped, first)
-            channel.eventBus().addListener(Stopped, last)
+            channel.addListener(Stopped, first)
+            channel.addListener(Stopped, last)
             channel.start()
         when:
             channel.stop()
@@ -101,10 +101,10 @@ final class LifecycleSpec extends Specification {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.eventBus().addListener(Started, first)
-            channel.eventBus().addListener(Started, last)
+            channel.addListener(Started, first)
+            channel.addListener(Started, last)
         when:
-            channel.eventBus().removeListener(Started, first)
+            channel.removeListener(Started, first)
             channel.start()
         then:
             last.waitUntilExecuted()
@@ -115,11 +115,11 @@ final class LifecycleSpec extends Specification {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.eventBus().addListener(Stopped, first)
-            channel.eventBus().addListener(Stopped, last)
+            channel.addListener(Stopped, first)
+            channel.addListener(Stopped, last)
             channel.start()
         when:
-            channel.eventBus().removeListener(Stopped, first)
+            channel.removeListener(Stopped, first)
             channel.stop()
         then:
             last.waitUntilExecuted()
@@ -139,7 +139,7 @@ final class LifecycleSpec extends Specification {
     void 'should close the channel when InputStream is closed'() {
         given:
             AwaitingConsumer stoppedListener = new AwaitingConsumer()
-            channel.eventBus().addListener(Stopped, stoppedListener)
+            channel.addListener(Stopped, stoppedListener)
             channel.start()
         when:
             inputStream.close()
@@ -150,7 +150,7 @@ final class LifecycleSpec extends Specification {
     void 'should close the channel when OutputStream is closed'() {
         given:
             AwaitingConsumer stoppedListener = new AwaitingConsumer()
-            channel.eventBus().addListener(Stopped, stoppedListener)
+            channel.addListener(Stopped, stoppedListener)
             channel.start()
         when:
             outputStream.close()
@@ -161,14 +161,14 @@ final class LifecycleSpec extends Specification {
 
     void 'should throw RuntimeException when adding listener for invalid event type'() {
         when:
-            channel.eventBus().addListener(Event, {})
+            channel.addListener(Event, {})
         then:
             thrown(RuntimeException)
     }
 
     void 'should throw RuntimeException when removinglistener for invalid event type'() {
         when:
-            channel.eventBus().removeListener(Event, {})
+            channel.removeListener(Event, {})
         then:
             thrown(RuntimeException)
     }

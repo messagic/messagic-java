@@ -11,7 +11,7 @@ Simple text-based protocol using Input and OutputStreams:
 
 ```Java
 MessageChannel channel = new StreamsMessageChannel(System.in, System.out);
-channel.eventBus().addListener(TextMessage.class, msg -> {
+channel.addListener(TextMessage.class, msg -> {
     ...
 });
 channel.start();

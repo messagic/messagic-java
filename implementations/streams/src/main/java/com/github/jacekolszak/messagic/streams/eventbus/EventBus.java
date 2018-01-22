@@ -4,14 +4,13 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import com.github.jacekolszak.messagic.Event;
-import com.github.jacekolszak.messagic.EventBus;
 
-public final class EventBusImpl implements EventBus, Consumer<Event> {
+public final class EventBus implements Consumer<Event> {
 
     private final ChannelDispatchThread dispatchThread;
     private final ListenersSet listenersSet;
 
-    public EventBusImpl() {
+    public EventBus() {
         this.dispatchThread = new ChannelDispatchThread();
         this.listenersSet = new ListenersSet();
     }
@@ -24,7 +23,6 @@ public final class EventBusImpl implements EventBus, Consumer<Event> {
         dispatchThread.stop();
     }
 
-    @Override
     public <T extends Event> void addListener(Class<T> eventClass, Consumer<T> listener) {
         try {
             listenersSet.add(eventClass, listener);
@@ -33,7 +31,6 @@ public final class EventBusImpl implements EventBus, Consumer<Event> {
         }
     }
 
-    @Override
     public <T extends Event> void removeListener(Class<T> eventClass, Consumer<T> listener) {
         try {
             listenersSet.remove(eventClass, listener);

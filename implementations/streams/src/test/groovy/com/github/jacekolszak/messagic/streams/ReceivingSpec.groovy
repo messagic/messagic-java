@@ -24,7 +24,7 @@ final class ReceivingSpec extends Specification {
     void 'should read encoded text message "#inputString" from input stream and notify listener with "#expectedMessage"'() {
         given:
             ConsumeOneMessage<TextMessage> listener = new ConsumeOneMessage()
-            channel.eventBus().addListener(TextMessage, listener)
+            channel.addListener(TextMessage, listener)
             channel.start()
         when:
             inputStream.write(inputString.getBytes("UTF-8"))
@@ -47,7 +47,7 @@ final class ReceivingSpec extends Specification {
     void 'should read encoded binary message "#inputString" from input stream and notify listener with "#expectedMessage"'() {
         given:
             ConsumeOneMessage<BinaryMessage> listener = new ConsumeOneMessage()
-            channel.eventBus().addListener(BinaryMessage, listener)
+            channel.addListener(BinaryMessage, listener)
             channel.start()
         when:
             inputStream.write(inputString.getBytes("UTF-8"))
@@ -64,7 +64,7 @@ final class ReceivingSpec extends Specification {
     void 'should read many messages in sequence they arrived'() {
         given:
             ConsumeManyMessages listener = new ConsumeManyMessages(2)
-            channel.eventBus().addListener(TextMessage, listener)
+            channel.addListener(TextMessage, listener)
             channel.start()
         when:
             inputStream.writeTextMessage('1')
@@ -77,7 +77,7 @@ final class ReceivingSpec extends Specification {
     void 'after stop() no new incoming messages are published to listeners'() {
         given:
             ConsumeOneMessage listener = new ConsumeOneMessage()
-            channel.eventBus().addListener(TextMessage, listener)
+            channel.addListener(TextMessage, listener)
             channel.start()
         when:
             channel.stop()
@@ -93,8 +93,8 @@ final class ReceivingSpec extends Specification {
             List<AwaitingConsumer> executionOrder = []
             AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
             AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
-            channel.eventBus().addListener(TextMessage, first)
-            channel.eventBus().addListener(TextMessage, last)
+            channel.addListener(TextMessage, first)
+            channel.addListener(TextMessage, last)
             channel.start()
         when:
             inputStream.writeTextMessage()
@@ -110,8 +110,8 @@ final class ReceivingSpec extends Specification {
             List<AwaitingConsumer> executionOrder = []
             AwaitingConsumer first = new AwaitingConsumer({ executionOrder << it })
             AwaitingConsumer last = new AwaitingConsumer({ executionOrder << it })
-            channel.eventBus().addListener(BinaryMessage, first)
-            channel.eventBus().addListener(BinaryMessage, last)
+            channel.addListener(BinaryMessage, first)
+            channel.addListener(BinaryMessage, last)
             channel.start()
         when:
             inputStream.writeBinaryMessage()
@@ -125,8 +125,8 @@ final class ReceivingSpec extends Specification {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.eventBus().addListener(TextMessage, first)
-            channel.eventBus().addListener(TextMessage, last)
+            channel.addListener(TextMessage, first)
+            channel.addListener(TextMessage, last)
             channel.start()
         when:
             inputStream.writeTextMessage()
@@ -139,8 +139,8 @@ final class ReceivingSpec extends Specification {
         given:
             AwaitingConsumer first = new AwaitingConsumer({ throw new RuntimeException('Deliberate exception') })
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.eventBus().addListener(BinaryMessage, first)
-            channel.eventBus().addListener(BinaryMessage, last)
+            channel.addListener(BinaryMessage, first)
+            channel.addListener(BinaryMessage, last)
             channel.start()
         when:
             inputStream.writeBinaryMessage()
@@ -153,11 +153,11 @@ final class ReceivingSpec extends Specification {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.eventBus().addListener(TextMessage, first)
-            channel.eventBus().addListener(TextMessage, last)
+            channel.addListener(TextMessage, first)
+            channel.addListener(TextMessage, last)
             channel.start()
         when:
-            channel.eventBus().removeListener(TextMessage, first)
+            channel.removeListener(TextMessage, first)
             inputStream.writeTextMessage()
         then:
             last.waitUntilExecuted()
@@ -168,11 +168,11 @@ final class ReceivingSpec extends Specification {
         given:
             ConsumeOneMessage first = new ConsumeOneMessage()
             AwaitingConsumer last = new AwaitingConsumer()
-            channel.eventBus().addListener(BinaryMessage, first)
-            channel.eventBus().addListener(BinaryMessage, last)
+            channel.addListener(BinaryMessage, first)
+            channel.addListener(BinaryMessage, last)
             channel.start()
         when:
-            channel.eventBus().removeListener(BinaryMessage, first)
+            channel.removeListener(BinaryMessage, first)
             inputStream.writeBinaryMessage()
         then:
             last.waitUntilExecuted()

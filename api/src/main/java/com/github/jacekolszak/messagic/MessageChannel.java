@@ -1,5 +1,7 @@
 package com.github.jacekolszak.messagic;
 
+import java.util.function.Consumer;
+
 /***
  * Please note that sending messages or starting and stopping the channel is asynchronous, ie. does not block the current thread until it is done.
  * All message and events listeners are run asynchronously in sequential manner.
@@ -9,7 +11,9 @@ package com.github.jacekolszak.messagic;
  */
 public interface MessageChannel {
 
-    EventBus eventBus();
+    <T extends Event> void addListener(Class<T> eventClass, Consumer<T> listener);
+
+    <T extends Event> void removeListener(Class<T> eventClass, Consumer<T> listener);
 
     /**
      * Once started channel allows to send messages and accepts incoming ones. After successful start Started event is published.

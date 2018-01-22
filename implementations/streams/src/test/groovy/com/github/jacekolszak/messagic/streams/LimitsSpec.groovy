@@ -30,8 +30,8 @@ final class LimitsSpec extends Specification {
         given:
             Limits limits = new Limits(textMessageMaximumSize: 1)
             channel = new StreamsMessageChannel(inputStream, outputStream, limits)
-            channel.eventBus().addListener(Error, errorListener)
-            channel.eventBus().addListener(Stopped, stoppedListener)
+            channel.addListener(Error, errorListener)
+            channel.addListener(Stopped, stoppedListener)
             channel.start()
         when:
             inputStream.writeTextMessage('ab')
@@ -44,8 +44,8 @@ final class LimitsSpec extends Specification {
         given:
             Limits limits = new Limits(binaryMessageMaximumSize: 1)
             channel = new StreamsMessageChannel(inputStream, outputStream, limits)
-            channel.eventBus().addListener(Error, errorListener)
-            channel.eventBus().addListener(Stopped, stoppedListener)
+            channel.addListener(Error, errorListener)
+            channel.addListener(Stopped, stoppedListener)
             channel.start()
         when:
             inputStream.writeBinaryMessage('AQI=')
@@ -58,8 +58,8 @@ final class LimitsSpec extends Specification {
         given:
             Limits limits = new Limits(textMessageMaximumSize: 1)
             channel = new StreamsMessageChannel(inputStream, outputStream, limits)
-            channel.eventBus().addListener(Error, errorListener)
-            channel.eventBus().addListener(Stopped, stoppedListener)
+            channel.addListener(Error, errorListener)
+            channel.addListener(Stopped, stoppedListener)
             channel.start()
         when:
             channel.send('ab')
@@ -72,8 +72,8 @@ final class LimitsSpec extends Specification {
         given:
             Limits limits = new Limits(binaryMessageMaximumSize: 1)
             channel = new StreamsMessageChannel(inputStream, outputStream, limits)
-            channel.eventBus().addListener(Error, errorListener)
-            channel.eventBus().addListener(Stopped, stoppedListener)
+            channel.addListener(Error, errorListener)
+            channel.addListener(Stopped, stoppedListener)
             channel.start()
         when:
             channel.send([1, 2] as byte[])
@@ -86,7 +86,7 @@ final class LimitsSpec extends Specification {
         given:
             Limits limits = new Limits(binaryMessageMaximumSize: 1)
             channel = new StreamsMessageChannel(inputStream, outputStream, limits)
-            channel.eventBus().addListener(BinaryMessage, binaryMessageListener)
+            channel.addListener(BinaryMessage, binaryMessageListener)
             channel.start()
         when:
             inputStream.writeBinaryMessage('AA==')
@@ -99,7 +99,7 @@ final class LimitsSpec extends Specification {
         given:
             Limits limits = new Limits(textMessageMaximumSize: 1)
             channel = new StreamsMessageChannel(inputStream, outputStream, limits)
-            channel.eventBus().addListener(TextMessage, textMessageListener)
+            channel.addListener(TextMessage, textMessageListener)
             channel.start()
         when:
             inputStream.writeTextMessage(textMessage)

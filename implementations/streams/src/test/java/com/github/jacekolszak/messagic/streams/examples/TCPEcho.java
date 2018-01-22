@@ -18,7 +18,7 @@ final class TCPEcho {
         OutputStream outputStream = socket.getOutputStream();
         // following piece of code is the same as in StandardIOEcho:
         StreamsMessageChannel channel = new StreamsMessageChannel(inputStream, outputStream);
-        channel.eventBus().addListener(TextMessage.class, e -> channel.send(e.text()));
+        channel.addListener(TextMessage.class, e -> channel.send(e.text()));
         channel.start();
     }
 
