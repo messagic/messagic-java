@@ -1,5 +1,6 @@
 package com.github.jacekolszak.messagic.streams.input;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -48,7 +49,7 @@ final class Utf8TextBuffer {
 
         char nextCharacter() throws IOException {
             ByteBuffer buffer = ByteBuffer.allocate(6);
-            int b = inputStream.read();
+            int b = nextByte();
             buffer.put((byte) b);
             if ((b >> 5) == 0b110) { //
                 nextBytes(1, buffer);
@@ -65,9 +66,17 @@ final class Utf8TextBuffer {
             return decoder.decode(buffer).get();
         }
 
+        private int nextByte() throws IOException {
+            int b = inputStream.read();
+            if (b == -1) {
+                throw new EOFException("InputStream is closed. Can't read from it.");
+            }
+            return b;
+        }
+
         private void nextBytes(int numberOfBytes, ByteBuffer buffer) throws IOException {
             for (int i = 0; i < numberOfBytes; i++) {
-                int b = inputStream.read();
+                int b = nextByte();
                 buffer.put((byte) b);
             }
         }

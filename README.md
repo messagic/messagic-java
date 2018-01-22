@@ -16,6 +16,6 @@ channel.start();
 channel.send("Hello");
 ```
 
-Can be used with stdout/stderr, TCP sockets, append-only files etc. If used over TCP then netcat or socat command-line tools can be used. Telnet does not work, because it uses ASCII, not UTF-8.
+Can be used with stdout/stderr, TCP sockets etc. If used over TCP then netcat or socat command-line tools can be used. Telnet does not work, because it uses ASCII, not UTF-8.
 
 [More examples here](streams/src/test/java/com/github/jacekolszak/messagic/streams/examples)
