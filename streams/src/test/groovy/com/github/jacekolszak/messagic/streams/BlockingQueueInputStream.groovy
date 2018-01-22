@@ -35,7 +35,9 @@ final class BlockingQueueInputStream extends InputStream {
     @Override
     int read() throws IOException {
         int b = bytesQueue.take()
-        if (b == IO_EXCEPTION) {
+        if (b == EOF) {
+            bytesQueue.put(EOF) // EOF should be always on the end of the queue
+        } else if (b == IO_EXCEPTION) {
             throw new IOException("Fake IO exception")
         }
         return b
@@ -58,7 +60,6 @@ final class BlockingQueueInputStream extends InputStream {
         for (int i = offset; i < offset + length; i++) {
             int b = readByte(output, i);
             if (b == EOF) {
-                bytesQueue.put(EOF) // TODO It looks a little bit like magic ;)
                 int bytesRead = i - offset
                 return bytesRead
             }
