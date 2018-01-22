@@ -15,7 +15,7 @@ public final class OutputPipe {
     private final MessageFactory messageFactory;
     private final Consumer<Exception> onError;
 
-    private boolean stopped;
+    private volatile boolean stopped;
 
     public OutputPipe(OutputStream output, MessageFactory messageFactory, Consumer<Exception> onError) {
         this.output = output;

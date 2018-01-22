@@ -3,6 +3,9 @@ package com.github.jacekolszak.messagic;
 /***
  * Please note that sending messages or starting and stopping the channel is asynchronous, ie. does not block the current thread until it is done.
  * All message and events listeners are run asynchronously in sequential manner.
+ *
+ * All implementation classes must be thread-safe
+ *
  */
 public interface MessageChannel {
 

@@ -48,7 +48,7 @@ public final class StreamsMessageChannel implements MessageChannel {
     }
 
     @Override
-    public void start() {
+    public synchronized void start() {
         if (state == State.NEW) {
             inputPipeThread.start();
             state = State.STARTED;
@@ -70,7 +70,7 @@ public final class StreamsMessageChannel implements MessageChannel {
     }
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
         if (state == State.STARTED) {
             try {
                 this.inputPipeThread.stop();
