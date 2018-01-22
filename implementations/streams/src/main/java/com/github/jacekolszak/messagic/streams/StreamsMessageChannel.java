@@ -16,6 +16,9 @@ import com.github.jacekolszak.messagic.streams.output.OutputPipe;
 /**
  * MessageChannel implementation using Input and OutputStream. Protocol is text-based in UTF-8 encoding. Binary messages
  * are encoded using Base64. Every message is separated using new line "\n".
+ * <p>
+ * More info about Protocol here:
+ * <a href="https://github.com/jacekolszak/messagic-java/blob/master/implementations/streams/README.md">README.md</a>
  */
 public final class StreamsMessageChannel implements MessageChannel {
 
