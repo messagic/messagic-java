@@ -17,7 +17,7 @@
             <package name="" withSubpackages="true" static="false"/>
         </value>
     </option>
-    <option name="RIGHT_MARGIN" value="250"/>
+    <option name="RIGHT_MARGIN" value="126"/>
     <JSCodeStyleSettings>
         <option name="OBJECT_LITERAL_WRAP" value="2"/>
     </JSCodeStyleSettings>

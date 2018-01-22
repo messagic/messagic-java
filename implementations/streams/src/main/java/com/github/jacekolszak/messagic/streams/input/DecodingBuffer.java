@@ -19,7 +19,7 @@ public final class DecodingBuffer {
     }
 
     byte[] nextBinaryMessage() throws IOException {
-        int maximumSizeOfBase64 = (int) (binaryMessageMaximumSize * 1.34) + 3; // TODO Maximum limit should be calculated more intelligently ;)
+        int maximumSizeOfBase64 = (int) (binaryMessageMaximumSize * 1.34) + 3; // TODO Be more clever here ;)
         String message = textBuffer.nextMessage(maximumSizeOfBase64);
         byte[] decoded = decode(message);
         if (decoded.length > binaryMessageMaximumSize) {

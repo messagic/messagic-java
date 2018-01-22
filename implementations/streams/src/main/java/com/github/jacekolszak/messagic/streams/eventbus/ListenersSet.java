@@ -44,7 +44,8 @@ final class ListenersSet {
 
     private enum EventType {
 
-        STARTED(Started.class), STOPPED(Stopped.class), BINARY_MESSAGE(BinaryMessage.class), TEXT_MESSAGE(TextMessage.class), ERROR(Error.class);
+        STARTED(Started.class), STOPPED(Stopped.class), BINARY_MESSAGE(BinaryMessage.class),
+        TEXT_MESSAGE(TextMessage.class), ERROR(Error.class);
 
         private final Class<? extends Event> eventClass;
 
@@ -56,7 +57,8 @@ final class ListenersSet {
             return Arrays.stream(values())
                     .filter(type -> type.eventClass.isAssignableFrom(eventClass))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Event class " + eventClass.getName() + " not supported"));
+                    .orElseThrow(() ->
+                            new IllegalArgumentException("Event class " + eventClass.getName() + " not supported"));
         }
     }
 
