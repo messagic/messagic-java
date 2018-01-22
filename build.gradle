@@ -15,7 +15,7 @@ subprojects {
     }
 }
 
-project(':streams') {
+project(':implementations:streams') {
     dependencies {
         api project(':api')
     }

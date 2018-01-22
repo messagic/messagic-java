@@ -1,1 +1,1 @@
-include 'api', 'implementations/streams'
+include 'api', 'implementations:streams'

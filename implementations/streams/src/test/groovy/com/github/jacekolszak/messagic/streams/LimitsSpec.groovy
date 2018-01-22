@@ -19,7 +19,6 @@ final class LimitsSpec extends Specification {
     private final ConsumeOneMessage<BinaryMessage> binaryMessageListener = new ConsumeOneMessage()
     private final ConsumeOneMessage<TextMessage> textMessageListener = new ConsumeOneMessage()
 
-
     @Subject
     private StreamsMessageChannel channel
 
