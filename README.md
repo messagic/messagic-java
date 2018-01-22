@@ -9,7 +9,7 @@ Simple text-based protocol using Input and OutputStreams:
 
 ```Java
 MessageChannel channel = new StreamsMessageChannel(System.in, System.out);
-channel.events().addListener(TextMessage.class, msg -> {
+channel.eventBus().addListener(TextMessage.class, msg -> {
     ...
 });
 channel.start();
