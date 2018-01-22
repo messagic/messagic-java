@@ -110,7 +110,7 @@ final class StreamsMessageChannelSpec extends Specification {
             'Aą\n'           || 'Aą'
             'ą\n'            || 'ą' // 2 bytes in UTF-8
             'ಎ\n'            || 'ಎ' // 3 bytes
-//            '𐊀\n'            || '𐊀' // 4 bytes  TODO DOES NOT WORK YET
+            '𐊀\n'           || '𐊀' // 4 bytes
     }
 
     @Unroll

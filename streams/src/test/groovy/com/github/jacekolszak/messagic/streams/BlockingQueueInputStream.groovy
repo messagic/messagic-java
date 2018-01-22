@@ -59,7 +59,8 @@ final class BlockingQueueInputStream extends InputStream {
             int b = readByte(output, i);
             if (b == EOF) {
                 bytesQueue.put(EOF) // TODO It looks a little bit like magic ;)
-                return i - offset
+                int bytesRead = i - offset
+                return bytesRead
             }
         }
         return length
