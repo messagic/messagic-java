@@ -42,6 +42,40 @@ final class BlockingQueueInputStream extends InputStream {
     }
 
     @Override
+    int read(byte[] output, int offset, int length) throws IOException {
+        if (length == 0) {
+            return 0;
+        }
+        int availableBytes = Math.min(length, bytesQueue.size())
+        if (availableBytes > 0) {
+            return readBytes(output, offset, availableBytes)
+        } else {
+            return readByte(output, offset)
+        }
+    }
+
+    private int readBytes(byte[] output, int offset, int length) {
+        for (int i = offset; i < offset + length; i++) {
+            int b = readByte(output, i);
+            if (b == EOF) {
+                bytesQueue.put(EOF) // TODO It looks a little bit like magic ;)
+                return i - offset
+            }
+        }
+        return length
+    }
+
+    private int readByte(byte[] output, int offset) {
+        int b = read()
+        if (b != EOF) {
+            output[offset] = (byte) b
+            return 1
+        } else {
+            return EOF
+        }
+    }
+
+    @Override
     void close() throws IOException {
         bytesQueue.put(EOF)
     }
