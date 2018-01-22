@@ -16,4 +16,4 @@ channel.send("Hello");
 
 ## Implementations
 
-+ [Streams](implementations/stream) - Simple text-based protocol; uses Java's Input and OutputStreams abstractions
++ [Streams](implementations/streams) - Simple text-based protocol; uses Java's Input and OutputStreams abstractions
