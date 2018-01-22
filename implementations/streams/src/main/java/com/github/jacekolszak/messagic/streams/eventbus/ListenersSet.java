@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
 import com.github.jacekolszak.messagic.BinaryMessage;
@@ -23,7 +23,7 @@ final class ListenersSet {
         map = new HashMap<>();
         // preemptively fill map to avoid concurrency issues later
         for (EventType eventType : EventType.values()) {
-            map.put(eventType, new ConcurrentSkipListSet<>());
+            map.put(eventType, new CopyOnWriteArraySet<>());
         }
     }
 
