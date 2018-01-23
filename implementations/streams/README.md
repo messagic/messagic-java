@@ -17,7 +17,7 @@ Can be used with stdout/stderr, TCP sockets etc. If used over TCP then netcat or
 
 ## Protocol
 
-+ text-based - text messages are encoded as is, binary ones using [Base64](https://en.wikipedia.org/wiki/Base64) encoding (mostly for debugging purposes)
++ text-based - text messages are encoded as is, binary ones using [Base64](https://en.wikipedia.org/wiki/Base64) encoding (useful for debugging purposes)
 + uses UTF-8 encoding (always)
 + every message is a line (sequence of characters with EOL ```\n``` on the end)
 + text message is encoded as is or with ```#``` character prefix, e.g.:
