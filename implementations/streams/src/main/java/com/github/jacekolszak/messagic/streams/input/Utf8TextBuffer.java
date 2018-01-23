@@ -8,7 +8,7 @@ import java.io.UnsupportedEncodingException;
 
 final class Utf8TextBuffer {
 
-    private InputStreamReader reader;
+    private final InputStreamReader reader;
 
     Utf8TextBuffer(InputStream inputStream) {
         try {

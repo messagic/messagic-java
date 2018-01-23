@@ -19,8 +19,8 @@ public final class InputPipeThread {
         thread = new Thread(() -> {
             try {
                 while (!stopped) {
-                    Event messageEvent = messageEventsStream.nextMessageEvent();
-                    onMessage.accept(messageEvent);
+                    messageEventsStream.moveToNextEvent();
+                    onMessage.accept(messageEventsStream.event());
                 }
             } catch (InterruptedIOException e) {
                 logger.info("Reading message stream interrupted");

@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import com.github.jacekolszak.messagic.Event;
 import com.github.jacekolszak.messagic.MessageChannel;
 import com.github.jacekolszak.messagic.streams.eventbus.EventBus;
-import com.github.jacekolszak.messagic.streams.input.DecodingBuffer;
 import com.github.jacekolszak.messagic.streams.input.InputPipeThread;
 import com.github.jacekolszak.messagic.streams.input.MessageEventsStream;
 import com.github.jacekolszak.messagic.streams.output.MessageFactory;
@@ -34,8 +33,7 @@ public final class StreamsMessageChannel implements MessageChannel {
 
     public StreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
         eventsBus = new EventBus();
-        DecodingBuffer decodingBuffer = limits.decodingBuffer(input);
-        MessageEventsStream messageEventsStream = new MessageEventsStream(decodingBuffer, this);
+        MessageEventsStream messageEventsStream = limits.messageEventsStream(input, this);
         inputPipeThread = new InputPipeThread(messageEventsStream, eventsBus, exception -> {
             eventsBus.accept(new ErrorEvent(this, exception));
             stop();

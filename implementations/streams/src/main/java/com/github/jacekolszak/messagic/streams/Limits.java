@@ -2,7 +2,8 @@ package com.github.jacekolszak.messagic.streams;
 
 import java.io.InputStream;
 
-import com.github.jacekolszak.messagic.streams.input.DecodingBuffer;
+import com.github.jacekolszak.messagic.MessageChannel;
+import com.github.jacekolszak.messagic.streams.input.MessageEventsStream;
 import com.github.jacekolszak.messagic.streams.output.MessageFactory;
 
 public final class Limits {
@@ -34,8 +35,8 @@ public final class Limits {
         return new MessageFactory(textMessageMaximumSize, binaryMessageMaximumSize);
     }
 
-    DecodingBuffer decodingBuffer(InputStream inputStream) {
-        return new DecodingBuffer(inputStream, textMessageMaximumSize, binaryMessageMaximumSize);
+    MessageEventsStream messageEventsStream(InputStream inputStream, MessageChannel channel) {
+        return new MessageEventsStream(inputStream, textMessageMaximumSize, binaryMessageMaximumSize, channel);
     }
 
 }
