@@ -35,11 +35,29 @@ Can be used with stdout/stderr, TCP sockets etc. If used over TCP then netcat or
 + multi-line text message is encoded with "@" character prefix. EOL is no longer a message end. Line ".\n" should be used instead
 
   ```
-     @multi-line\n
+     @Multi-line\n
      text message\n
      .\n
   ```
   
   decodes to
   
-  ```multi-line\ntext message```
+  ```
+     Multi-line
+     text message
+  ```
+  
+  + if some line in multi-line text message starts with a dot "." then the whole line should be prefixed with another dot:
+
+      ```
+         @Multi-line message with a dot in following line\n
+         ..\n
+         .\n
+      ```
+      
+      decodes to
+  
+      ```
+         Multi-line message with a dot in following line
+         .
+      ```
