@@ -26,7 +26,7 @@ final class BlockingQueueOutputStream extends OutputStream {
     }
 
     List<String> nextLines(int count) {
-        return (0..count).collect { nextLine() }
+        return (1..count).collect { nextLine() }
     }
 
     @Override

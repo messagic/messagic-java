@@ -97,7 +97,7 @@ final class SendingSpec extends Specification {
         when:
             channel.send(message)
         then:
-            outputStream.nextLines(2).join() == encoded
+            outputStream.nextLines(3).join() == encoded
         where:
             message       || encoded
             'MULTI\nLINE' || '@MULTI\nLINE\n.\n'
