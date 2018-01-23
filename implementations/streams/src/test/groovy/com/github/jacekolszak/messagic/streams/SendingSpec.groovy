@@ -24,7 +24,7 @@ final class SendingSpec extends Specification {
         when:
             channel.send('textMessage')
         then:
-            outputStream.nextLine() == 'textMessage'
+            outputStream.nextLine() == 'textMessage\n'
     }
 
     void 'should send binary message to output stream'() {
@@ -33,7 +33,7 @@ final class SendingSpec extends Specification {
         when:
             channel.send([1, 2, 3] as byte[])
         then:
-            outputStream.nextLine() == '$AQID'
+            outputStream.nextLine() == '$AQID\n'
     }
 
     void 'sending text message should be asynchronous'() {
@@ -62,7 +62,7 @@ final class SendingSpec extends Specification {
         when:
             channel.send('')
         then:
-            outputStream.nextLine() == ''
+            outputStream.nextLine() == '\n'
     }
 
     void 'should send empty binary message to output stream'() {
@@ -71,7 +71,7 @@ final class SendingSpec extends Specification {
         when:
             channel.send(new byte[0])
         then:
-            outputStream.nextLine() == '$'
+            outputStream.nextLine() == '$\n'
     }
 
     @Unroll
@@ -84,28 +84,30 @@ final class SendingSpec extends Specification {
             outputStream.nextLine() == line
         where:
             message    || line
-            '#message' || '##message'
-            '$message' || '#$message'
-            '@message' || '#@message'
-            '.'        || '.'
+            '#message' || '##message\n'
+            '$message' || '#$message\n'
+            '@message' || '#@message\n'
+            '.'        || '.\n'
     }
 
     @Unroll
-    void 'should send multi-line text message "#message"'() {
+    void 'should send multi-line text message "#messageFormatted" encoded as "#encodedFormatted"'() {
         given:
             channel.start()
         when:
             channel.send(message)
         then:
-            outputStream.nextLines(2) == lines
+            outputStream.nextLines(2).join() == encoded
         where:
-            message       || lines
-            'multi\nline' || ['@multi', 'line', '.']
-            'multi\n'     || ['@multi', '', '.']
-            '\n'          || ['@', '', '.']
-            '\n.'         || ['@', '..', '.']
-            '\n..'        || ['@', '...', '.']
-            '@\n'         || ['@@', '', '.']
+            message       || encoded
+            'MULTI\nLINE' || '@MULTI\nLINE\n.\n'
+            'MULTI\n'     || '@MULTI\n\n.\n'
+            '\n'          || '@\n\n.\n'
+            '\n.'         || '@\n..\n.\n'
+            '\n..'        || '@\n...\n.\n'
+            '@\n'         || '@@\n\n.\n'
+            messageFormatted = message.replaceAll('\\n', '\\\\n')
+            encodedFormatted = encoded.replaceAll('\\n', '\\\\n')
     }
 
     void 'after stop() no new outgoing messages are sent'() {

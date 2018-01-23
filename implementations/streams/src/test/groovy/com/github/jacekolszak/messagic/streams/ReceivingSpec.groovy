@@ -58,7 +58,7 @@ final class ReceivingSpec extends Specification {
             inputString         || expectedMessage
             '@MULTI\nLINE\n.\n' || 'MULTI\nLINE'
             '@MULTI\n\n.\n'     || 'MULTI\n'
-            '@\n.\n'            || ''
+            '@\n\n.\n'          || '\n'
             '@\n..\n.\n'        || '\n.'
             '@\n...\n.\n'       || '\n..'
             '@@\n\n.\n'         || '@\n'
