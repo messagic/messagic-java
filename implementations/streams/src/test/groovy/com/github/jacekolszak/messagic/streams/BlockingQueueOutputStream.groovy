@@ -22,7 +22,11 @@ final class BlockingQueueOutputStream extends OutputStream {
         while ((character = bytes.take()) != '\n') {
             out.write(character)
         }
-        return out.toString("UTF-8")
+        return out.toString("UTF-8") + '\n'
+    }
+
+    List<String> nextLines(int count) {
+        return (1..count).collect { nextLine() }
     }
 
     @Override

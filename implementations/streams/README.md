@@ -19,7 +19,7 @@ Can be used with stdout/stderr, TCP sockets etc. If used over TCP then netcat or
 
 + text-based - text messages are encoded as is, binary ones using [Base64](https://en.wikipedia.org/wiki/Base64) encoding (mostly for debugging purposes)
 + uses UTF-8 encoding (always)
-+ every message is a line (sequence of characters with EOL '\n' on the end)
++ every message is a line (sequence of characters with EOL "\n" on the end)
 + text message is encoded as is or with "#" character prefix, e.g.:
 
   ```some message\n``` decodes to ```some message```
@@ -32,3 +32,14 @@ Can be used with stdout/stderr, TCP sockets etc. If used over TCP then netcat or
 
   ```$AQID\n``` decodes to ```[1,2,3]```
   
++ multi-line text message is encoded with "@" character prefix. EOL is no longer a message end. Line ".\n" should be used instead
+
+  ```
+     @multi-line\n
+     text message\n
+     .\n
+  ```
+  
+  decodes to
+  
+  ```multi-line\ntext message```

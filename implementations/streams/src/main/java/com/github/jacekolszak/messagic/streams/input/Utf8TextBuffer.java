@@ -20,18 +20,32 @@ final class Utf8TextBuffer {
 
     String nextMessage(int limit) throws IOException {
         int size = 0;
-        final StringBuilder builder = new StringBuilder();
+        final StringBuilder message = new StringBuilder();
         while (size < limit) {
             char c = nextChar();
             if (c == '\n') {
-                return builder.toString();
+                return message.toString();
             } else {
-                builder.append(c);
+                message.append(c);
                 size += 1;
             }
         }
         if (nextChar() == '\n') {
-            return builder.toString();
+            return message.toString();
+        }
+        throw new IOException("Received message exceeded maximum size of " + limit + " characters");
+    }
+
+    String nextMultilineMessage(int limit) throws IOException {
+        final StringBuilder message = new StringBuilder();
+        while (message.length() <= limit) {
+            String nextLine = nextMessage(limit - message.length());
+            if (nextLine.equals(".")) {
+                return message.substring(0, message.length() - 1);
+            } else if (nextLine.startsWith(".")) {
+                nextLine = nextLine.substring(1);
+            }
+            message.append(nextLine).append('\n');
         }
         throw new IOException("Received message exceeded maximum size of " + limit + " characters");
     }

@@ -44,6 +44,29 @@ final class ReceivingSpec extends Specification {
     }
 
     @Unroll
+    void 'should read multi-line text message "#inputStringFormatted" from input stream and notify listener with "#expectedMessageFormatted"'() {
+        given:
+            ConsumeOneMessage<TextMessage> listener = new ConsumeOneMessage()
+            channel.addListener(TextMessage, listener)
+            channel.start()
+        when:
+            inputStream.write(inputString.getBytes("UTF-8"))
+        then:
+            listener.message().text() == expectedMessage
+            listener.message().channel() == channel
+        where:
+            inputString         || expectedMessage
+            '@MULTI\nLINE\n.\n' || 'MULTI\nLINE'
+            '@MULTI\n\n.\n'     || 'MULTI\n'
+            '@\n\n.\n'          || '\n'
+            '@\n..\n.\n'        || '\n.'
+            '@\n...\n.\n'       || '\n..'
+            '@@\n\n.\n'         || '@\n'
+            inputStringFormatted = inputString.replaceAll('\\n', '\\\\n')
+            expectedMessageFormatted = expectedMessage.replaceAll('\\n', '\\\\n')
+    }
+
+    @Unroll
     void 'should read encoded binary message "#inputString" from input stream and notify listener with "#expectedMessage"'() {
         given:
             ConsumeOneMessage<BinaryMessage> listener = new ConsumeOneMessage()
