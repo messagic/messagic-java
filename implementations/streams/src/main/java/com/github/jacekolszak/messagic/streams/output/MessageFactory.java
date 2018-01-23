@@ -21,7 +21,7 @@ public final class MessageFactory {
             throw new StreamsMessageChannelException(error);
         }
         if (text.contains("\n")) {
-            return new MultilineTextMessage(text);
+            return new MultiLineTextMessage(text);
         } else {
             return new OneLineTextMessage(text);
         }

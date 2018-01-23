@@ -3,11 +3,11 @@ package com.github.jacekolszak.messagic.streams.output;
 import java.io.IOException;
 import java.io.OutputStream;
 
-final class MultilineTextMessage implements TextMessage {
+final class MultiLineTextMessage implements TextMessage {
 
     private final String text;
 
-    MultilineTextMessage(String text) {
+    MultiLineTextMessage(String text) {
         this.text = text;
     }
 
