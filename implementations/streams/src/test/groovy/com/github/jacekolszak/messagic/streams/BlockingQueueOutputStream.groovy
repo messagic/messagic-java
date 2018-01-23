@@ -25,6 +25,10 @@ final class BlockingQueueOutputStream extends OutputStream {
         return out.toString("UTF-8")
     }
 
+    List<String> nextLines(int count) {
+        return (0..count).collect { nextLine() }
+    }
+
     @Override
     void close() throws IOException {
         closed = true

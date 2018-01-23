@@ -46,6 +46,16 @@ public final class DecodingBuffer {
         return nextTextMessage(textMessageMaximumSize);
     }
 
+    String nextMultilineTextMessage() throws IOException {
+        String text = textBuffer.nextMultilineMessage(textMessageMaximumSize);
+        if (text.length() > textMessageMaximumSize) {
+            String error = String.format("Incoming text message \"%s...\" is bigger than allowed %s characters",
+                    text.substring(0, textMessageMaximumSize), textMessageMaximumSize);
+            throw new StreamsMessageChannelException(error);
+        }
+        return text;
+    }
+
     private String nextTextMessage(int maxSize) throws IOException {
         String text = textBuffer.nextMessage(maxSize);
         if (text.length() > maxSize) {

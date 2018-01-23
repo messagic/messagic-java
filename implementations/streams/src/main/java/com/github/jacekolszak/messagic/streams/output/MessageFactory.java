@@ -20,7 +20,11 @@ public final class MessageFactory {
             String error = String.format("Outgoing text message \"%s...\" is bigger than allowed %s characters", text.substring(0, textMessageMaximumSize), textMessageMaximumSize);
             throw new StreamsMessageChannelException(error);
         }
-        return new TextMessage(text);
+        if (text.contains("\n")) {
+            return new MultilineTextMessage(text);
+        } else {
+            return new OneLineTextMessage(text);
+        }
     }
 
     BinaryMessage binaryMessage(byte[] bytes) throws StreamsMessageChannelException {

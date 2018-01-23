@@ -86,6 +86,26 @@ final class SendingSpec extends Specification {
             message    || line
             '#message' || '##message'
             '$message' || '#$message'
+            '@message' || '#@message'
+            '.'        || '.'
+    }
+
+    @Unroll
+    void 'should send multi-line text message "#message"'() {
+        given:
+            channel.start()
+        when:
+            channel.send(message)
+        then:
+            outputStream.nextLines(2) == lines
+        where:
+            message       || lines
+            'multi\nline' || ['@multi', 'line', '.']
+            'multi\n'     || ['@multi', '', '.']
+            '\n'          || ['@', '', '.']
+            '\n.'         || ['@', '..', '.']
+            '\n..'        || ['@', '...', '.']
+            '@\n'         || ['@@', '', '.']
     }
 
     void 'after stop() no new outgoing messages are sent'() {
