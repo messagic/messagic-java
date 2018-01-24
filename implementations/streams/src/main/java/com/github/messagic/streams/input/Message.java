@@ -1,0 +1,9 @@
+package com.github.messagic.streams.input;
+
+import java.io.IOException;
+
+interface Message {
+
+    DecodedMessage decodedMessage() throws IOException;
+
+}
