@@ -10,6 +10,7 @@ channel1.addListener(TextMessage.class, msg -> {
     ...
 });
 channel1.start();
+channel2.start();
 channel2.send("Hello");
 ```
 
