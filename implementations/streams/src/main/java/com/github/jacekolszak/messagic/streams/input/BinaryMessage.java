@@ -25,7 +25,7 @@ final class BinaryMessage implements Message {
         try {
             decodedBytes = Base64.getDecoder().decode(message);
         } catch (IllegalArgumentException e) {
-            throw new IOException("Problem during decoding binary message", e);
+            throw new StreamsMessageChannelException("Problem during decoding binary message", e);
         }
         if (decodedBytes.length > binaryMessageMaximumSize) {
             String encodedMessageFragment = message.substring(0, Math.min(binaryMessageMaximumSize, 256));

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
 import com.github.jacekolszak.messagic.MessageChannel;
+import com.github.jacekolszak.messagic.streams.StreamsMessageChannelException;
 
 public final class MessageStream {
 
@@ -73,7 +74,7 @@ public final class MessageStream {
         if (readChar() == '\n') {
             return message.toString();
         }
-        throw new IOException("Received message exceeded maximum size of " + limit + " characters");
+        throw new StreamsMessageChannelException("Received message exceeded maximum size of " + limit + " characters");
     }
 
     private String readMultiLineMessage(int limit) throws IOException {
@@ -87,7 +88,7 @@ public final class MessageStream {
             }
             message.append(nextLine).append('\n');
         }
-        throw new IOException("Received message exceeded maximum size of " + limit + " characters");
+        throw new StreamsMessageChannelException("Received message exceeded maximum size of " + limit + " characters");
     }
 
     private char readChar() throws IOException {
