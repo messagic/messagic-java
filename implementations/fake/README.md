@@ -1,6 +1,6 @@
 # Fake 
 
-Implementation for unit test your code. Use this implementation instead of stubbing, mocking or however you call it:
+Implementation for unit testing your code. Use this implementation instead of stubbing, mocking or however you call it:
 
 ```Java
 FakeMessageChannel channel1 = new FakeMessageChannel();
