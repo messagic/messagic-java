@@ -20,3 +20,9 @@ project(':implementations:streams') {
         api project(':api')
     }
 }
+
+project(':implementations:fake') {
+    dependencies {
+        api project(':api')
+    }
+}
