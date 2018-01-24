@@ -117,7 +117,7 @@ final class SendingSpec extends Specification {
             channel.stop()
             channel.send('afterStop')
         then:
-            Thread.sleep(1000) // TODO
+            Thread.sleep(500) // TODO
             outputStream.available() == 0
     }
 

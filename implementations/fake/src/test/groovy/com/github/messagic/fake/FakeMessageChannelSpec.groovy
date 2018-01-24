@@ -24,17 +24,42 @@ final class FakeMessageChannelSpec extends Specification {
         channel2.stop()
     }
 
-    void 'should notify listeners with Started event after channels are connected'() {
+    void 'should notify listeners with Started event after channels are started and connected'() {
         given:
             channel1.addListener(Started, startedListener1)
             channel2.addListener(Started, startedListener2)
+        when:
             channel1.start()
             channel2.start()
-        when:
             channel1.connect(channel2)
         then:
             startedListener1.message().channel() == channel1
             startedListener2.message().channel() == channel2
+    }
+
+    void 'should notify listeners with Started event after channels are connected and started'() {
+        given:
+            channel1.addListener(Started, startedListener1)
+            channel2.addListener(Started, startedListener2)
+        when:
+            channel1.connect(channel2)
+            channel1.start()
+            channel2.start()
+        then:
+            startedListener1.message().channel() == channel1
+            startedListener2.message().channel() == channel2
+    }
+
+    void 'should not notify listeners with Started event after channels are connected but not yet started'() {
+        given:
+            channel1.addListener(Started, startedListener1)
+            channel2.addListener(Started, startedListener2)
+        when:
+            channel1.connect(channel2)
+        then:
+            Thread.sleep(500) // TODO
+            !startedListener1.messageReceived()
+            !startedListener2.messageReceived()
     }
 
     void 'should send text message to connected channel'() {
@@ -75,6 +100,13 @@ final class FakeMessageChannelSpec extends Specification {
         then:
             stoppedListener1.message().channel() == channel1
             stoppedListener2.message().channel() == channel2
+    }
+
+    void 'stop should do nothing when channel is not yet started'() {
+        when:
+            channel1.stop()
+        then:
+            true
     }
 
 }

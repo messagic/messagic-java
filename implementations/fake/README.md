@@ -3,11 +3,13 @@
 Implementation for unit test your code. Use this implementation instead of stubbing, mocking or however you call it:
 
 ```Java
-FakeMessageChannel channel = new FakeMessageChannel();
-channel.addListener(TextMessage.class, msg -> {
+FakeMessageChannel channel1 = new FakeMessageChannel();
+FakeMessageChannel channel2 = new FakeMessageChannel();
+channel1.connect(channel2);
+channel1.addListener(TextMessage.class, msg -> {
     ...
 });
-channel.start();
-channel.send("Hello");
+channel1.start();
+channel2.send("Hello");
 ```
 

@@ -106,7 +106,7 @@ final class ReceivingSpec extends Specification {
             channel.stop()
             inputStream.writeTextMessage()
         then:
-            Thread.sleep(1000) // TODO
+            Thread.sleep(500) // TODO
             !listener.messageReceived()
     }
 

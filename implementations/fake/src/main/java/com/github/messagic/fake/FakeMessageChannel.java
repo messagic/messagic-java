@@ -10,6 +10,7 @@ public final class FakeMessageChannel implements MessageChannel {
 
     private final EventBus eventBus;
     private FakeMessageChannel connectedChannel;
+    private boolean started;
 
     public FakeMessageChannel() {
         this.eventBus = new EventBus();
@@ -28,6 +29,10 @@ public final class FakeMessageChannel implements MessageChannel {
     @Override
     public void start() {
         eventBus.start();
+        started = true;
+        if (connectedChannel != null) {
+            connect(connectedChannel); // TODO This works but looks like #!@
+        }
     }
 
     @Override
@@ -42,8 +47,10 @@ public final class FakeMessageChannel implements MessageChannel {
 
     @Override
     public void stop() {
-        eventBus.accept(new StoppedEvent(this));
-        connectedChannel.eventBus.accept(new StoppedEvent(connectedChannel));
+        if (connectedChannel != null) {
+            eventBus.accept(new StoppedEvent(this));
+            connectedChannel.eventBus.accept(new StoppedEvent(connectedChannel));
+        }
     }
 
     public void connect(FakeMessageChannel channel) {
@@ -53,7 +60,9 @@ public final class FakeMessageChannel implements MessageChannel {
 
     private void connected(FakeMessageChannel channel) {
         this.connectedChannel = channel;
-        eventBus.accept(new StartedEvent(this));
+        if (started) {
+            eventBus.accept(new StartedEvent(this));
+        }
     }
 
 }
