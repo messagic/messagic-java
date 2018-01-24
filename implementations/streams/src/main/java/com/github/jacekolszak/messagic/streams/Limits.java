@@ -3,7 +3,7 @@ package com.github.jacekolszak.messagic.streams;
 import java.io.InputStream;
 
 import com.github.jacekolszak.messagic.MessageChannel;
-import com.github.jacekolszak.messagic.streams.input.MessageEventsStream;
+import com.github.jacekolszak.messagic.streams.input.MessageStream;
 import com.github.jacekolszak.messagic.streams.output.MessageFactory;
 
 public final class Limits {
@@ -35,8 +35,8 @@ public final class Limits {
         return new MessageFactory(textMessageMaximumSize, binaryMessageMaximumSize);
     }
 
-    MessageEventsStream messageEventsStream(InputStream inputStream, MessageChannel channel) {
-        return new MessageEventsStream(inputStream, textMessageMaximumSize, binaryMessageMaximumSize, channel);
+    MessageStream messageStream(InputStream inputStream, MessageChannel channel) {
+        return new MessageStream(inputStream, channel, textMessageMaximumSize, binaryMessageMaximumSize);
     }
 
 }

@@ -15,12 +15,14 @@ public final class InputPipeThread {
     private final Thread thread;
     private volatile boolean stopped;
 
-    public InputPipeThread(MessageEventsStream messageEventsStream, Consumer<Event> onMessage, Consumer<Exception> onError) {
+    public InputPipeThread(MessageStream messageStream, Consumer<Event> onMessage, Consumer<Exception> onError) {
         thread = new Thread(() -> {
             try {
                 while (!stopped) {
-                    messageEventsStream.moveToNextEvent();
-                    onMessage.accept(messageEventsStream.event());
+                    messageStream.readNextMessage();
+                    Message message = messageStream.message();
+                    message.decode();
+                    onMessage.accept(message.event());
                 }
             } catch (InterruptedIOException e) {
                 logger.info("Reading message stream interrupted");

@@ -8,7 +8,7 @@ import com.github.jacekolszak.messagic.Event;
 import com.github.jacekolszak.messagic.MessageChannel;
 import com.github.jacekolszak.messagic.streams.eventbus.EventBus;
 import com.github.jacekolszak.messagic.streams.input.InputPipeThread;
-import com.github.jacekolszak.messagic.streams.input.MessageEventsStream;
+import com.github.jacekolszak.messagic.streams.input.MessageStream;
 import com.github.jacekolszak.messagic.streams.output.MessageFactory;
 import com.github.jacekolszak.messagic.streams.output.OutputPipe;
 
@@ -33,8 +33,8 @@ public final class StreamsMessageChannel implements MessageChannel {
 
     public StreamsMessageChannel(InputStream input, OutputStream output, Limits limits) {
         eventsBus = new EventBus();
-        MessageEventsStream messageEventsStream = limits.messageEventsStream(input, this);
-        inputPipeThread = new InputPipeThread(messageEventsStream, eventsBus, exception -> {
+        MessageStream messageStream = limits.messageStream(input, this);
+        inputPipeThread = new InputPipeThread(messageStream, eventsBus, exception -> {
             eventsBus.accept(new ErrorEvent(this, exception));
             stop();
         });

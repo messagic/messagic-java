@@ -6,14 +6,22 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
-final class MessageStream {
+import com.github.jacekolszak.messagic.MessageChannel;
+
+public final class MessageStream {
 
     private final InputStreamReader reader;
+    private final MessageChannel channel;
+    private final int textMessageMaximumSize;
+    private final int binaryMessageMaximumSize;
 
-    private String message;
-    private boolean binaryMessage;
+    private Message message;
 
-    MessageStream(InputStream inputStream) {
+    public MessageStream(InputStream inputStream, MessageChannel channel, int textMessageMaximumSize,
+                         int binaryMessageMaximumSize) {
+        this.channel = channel;
+        this.textMessageMaximumSize = textMessageMaximumSize;
+        this.binaryMessageMaximumSize = binaryMessageMaximumSize;
         try {
             this.reader = new InputStreamReader(inputStream, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -21,32 +29,28 @@ final class MessageStream {
         }
     }
 
-    void readMessage(int textMessageMaximumSize, int binaryMessageMaximumSize) throws IOException {
+    void readNextMessage() throws IOException {
         char typeOrFistCharacter = readChar();
         if (typeOrFistCharacter == '@') {
-            message = readMultiLineMessage(textMessageMaximumSize);
-            binaryMessage = false;
+            String message = readMultiLineMessage(textMessageMaximumSize);
+            this.message = new TextMessage(channel, message, textMessageMaximumSize);
         } else if (typeOrFistCharacter == '$') {
-            message = readMessage(binaryMessageMaximumSize);
-            binaryMessage = true;
+            int encodedBinaryMessageMaximumSize = (int) ((binaryMessageMaximumSize * 1.3) + 3);
+            String message = readMessage(encodedBinaryMessageMaximumSize);
+            this.message = new BinaryMessage(channel, message, binaryMessageMaximumSize);
         } else if (typeOrFistCharacter == '#') {
-            message = readMessage(textMessageMaximumSize);
-            binaryMessage = false;
+            String message = readMessage(textMessageMaximumSize);
+            this.message = new TextMessage(channel, message, textMessageMaximumSize);
         } else if (typeOrFistCharacter == '\n') {
-            message = "";
-            binaryMessage = false;
+            message = new TextMessage(channel, "", textMessageMaximumSize);
         } else {
-            message = typeOrFistCharacter + readMessage(textMessageMaximumSize - 1);
-            binaryMessage = false;
+            String message = typeOrFistCharacter + readMessage(textMessageMaximumSize - 1);
+            this.message = new TextMessage(channel, message, textMessageMaximumSize);
         }
     }
 
-    String message() {
+    Message message() {
         return message;
-    }
-
-    boolean binaryMessage() {
-        return binaryMessage;
     }
 
     private String readMessage(int limit) throws IOException {
