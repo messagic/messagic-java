@@ -31,21 +31,26 @@ public final class MessageStream {
 
     void readNextMessage() throws IOException {
         char typeOrFistCharacter = readChar();
-        if (typeOrFistCharacter == '@') {
-            String message = readMultiLineMessage(textMessageMaximumSize);
-            this.message = new TextMessage(channel, message, textMessageMaximumSize);
-        } else if (typeOrFistCharacter == '$') {
-            int encodedBinaryMessageMaximumSize = (int) ((binaryMessageMaximumSize * 1.3) + 3);
-            String message = readMessage(encodedBinaryMessageMaximumSize);
-            this.message = new BinaryMessage(channel, message, binaryMessageMaximumSize);
-        } else if (typeOrFistCharacter == '#') {
-            String message = readMessage(textMessageMaximumSize);
-            this.message = new TextMessage(channel, message, textMessageMaximumSize);
-        } else if (typeOrFistCharacter == '\n') {
-            message = new TextMessage(channel, "", textMessageMaximumSize);
-        } else {
-            String message = typeOrFistCharacter + readMessage(textMessageMaximumSize - 1);
-            this.message = new TextMessage(channel, message, textMessageMaximumSize);
+        switch (typeOrFistCharacter) {
+            case '@':
+                String message = readMultiLineMessage(textMessageMaximumSize);
+                this.message = new TextMessage(channel, message, textMessageMaximumSize);
+                break;
+            case '$':
+                int encodedBinaryMessageMaximumSize = (int) ((binaryMessageMaximumSize * 1.3) + 3);
+                message = readMessage(encodedBinaryMessageMaximumSize);
+                this.message = new BinaryMessage(channel, message, binaryMessageMaximumSize);
+                break;
+            case '#':
+                message = readMessage(textMessageMaximumSize);
+                this.message = new TextMessage(channel, message, textMessageMaximumSize);
+                break;
+            case '\n':
+                this.message = new TextMessage(channel, "", textMessageMaximumSize);
+                break;
+            default:
+                message = typeOrFistCharacter + readMessage(textMessageMaximumSize - 1);
+                this.message = new TextMessage(channel, message, textMessageMaximumSize);
         }
     }
 
