@@ -3,16 +3,14 @@ package com.github.jacekolszak.messagic.streams.input;
 import java.io.IOException;
 import java.util.Base64;
 
-import com.github.jacekolszak.messagic.Event;
 import com.github.jacekolszak.messagic.MessageChannel;
 import com.github.jacekolszak.messagic.streams.StreamsMessageChannelException;
 
 final class BinaryMessage implements Message {
 
-    private String encodedMessage;
-    private MessageChannel channel;
-    private byte[] decodedBytes;
-    private int binaryMessageMaximumSize;
+    private final String encodedMessage;
+    private final MessageChannel channel;
+    private final int binaryMessageMaximumSize;
 
     BinaryMessage(MessageChannel channel, String encodedMessage, int binaryMessageMaximumSize) {
         this.channel = channel;
@@ -21,7 +19,8 @@ final class BinaryMessage implements Message {
     }
 
     @Override
-    public void decode() throws IOException {
+    public DecodedMessage decodedMessage() throws IOException {
+        byte[] decodedBytes;
         try {
             decodedBytes = Base64.getDecoder().decode(encodedMessage);
         } catch (IllegalArgumentException e) {
@@ -33,11 +32,7 @@ final class BinaryMessage implements Message {
                     encodedMessageFragment, binaryMessageMaximumSize);
             throw new StreamsMessageChannelException(error);
         }
-    }
-
-    @Override
-    public Event event() {
-        return new BinaryMessageEvent(channel, decodedBytes);
+        return () -> new BinaryMessageEvent(channel, decodedBytes);
     }
 
 }

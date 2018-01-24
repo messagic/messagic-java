@@ -56,6 +56,9 @@ public final class MessageStream {
     }
 
     Message message() {
+        if (message == null) {
+            throw new IllegalStateException("Run readNextMessage() first");
+        }
         return message;
     }
 
