@@ -109,4 +109,17 @@ final class LimitsSpec extends Specification {
             textMessage << ['a', '#a']
     }
 
+    @Unroll
+    void 'should be possible to read multi-line text message which has maximum characters'() {
+        given:
+            Limits limits = new Limits(textMessageMaximumSize: 2)
+            channel = new StreamsMessageChannel(inputStream, outputStream, limits)
+            channel.addListener(TextMessage, textMessageListener)
+            channel.start()
+        when:
+            inputStream.writeMultiLineTextMessage('A\n')
+        then:
+            textMessageListener.message().text() == 'A\n'
+    }
+
 }

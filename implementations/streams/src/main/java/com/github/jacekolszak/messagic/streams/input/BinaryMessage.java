@@ -9,26 +9,26 @@ import com.github.jacekolszak.messagic.streams.StreamsMessageChannelException;
 
 final class BinaryMessage implements Message {
 
-    private String message;
+    private String encodedMessage;
     private MessageChannel channel;
     private byte[] decodedBytes;
     private int binaryMessageMaximumSize;
 
-    BinaryMessage(MessageChannel channel, String message, int binaryMessageMaximumSize) {
+    BinaryMessage(MessageChannel channel, String encodedMessage, int binaryMessageMaximumSize) {
         this.channel = channel;
-        this.message = message;
+        this.encodedMessage = encodedMessage;
         this.binaryMessageMaximumSize = binaryMessageMaximumSize;
     }
 
     @Override
     public void decode() throws IOException {
         try {
-            decodedBytes = Base64.getDecoder().decode(message);
+            decodedBytes = Base64.getDecoder().decode(encodedMessage);
         } catch (IllegalArgumentException e) {
             throw new StreamsMessageChannelException("Problem during decoding binary message", e);
         }
         if (decodedBytes.length > binaryMessageMaximumSize) {
-            String encodedMessageFragment = message.substring(0, Math.min(binaryMessageMaximumSize, 256));
+            String encodedMessageFragment = encodedMessage.substring(0, Math.min(binaryMessageMaximumSize, 256));
             String error = String.format("Incoming binary message \"%s...\" is bigger than allowed %s bytes",
                     encodedMessageFragment, binaryMessageMaximumSize);
             throw new StreamsMessageChannelException(error);

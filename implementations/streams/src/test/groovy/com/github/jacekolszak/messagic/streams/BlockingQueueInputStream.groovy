@@ -32,6 +32,10 @@ final class BlockingQueueInputStream extends InputStream {
         write("\$$base64\n".getBytes(ENCODING))
     }
 
+    void writeMultiLineTextMessage(String textMessage) {
+        write(('@' + textMessage + '\n.\n').getBytes(ENCODING))
+    }
+
     @Override
     int read() throws IOException {
         int b = bytesQueue.take()

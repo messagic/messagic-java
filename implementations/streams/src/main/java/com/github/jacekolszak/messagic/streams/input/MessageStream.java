@@ -34,7 +34,7 @@ public final class MessageStream {
         char typeOrFistCharacter = readChar();
         switch (typeOrFistCharacter) {
             case '@':
-                String message = readMultiLineMessage(textMessageMaximumSize);
+                String message = readMultiLineMessage(textMessageMaximumSize + 2);
                 this.message = new TextMessage(channel, message, textMessageMaximumSize);
                 break;
             case '$':
