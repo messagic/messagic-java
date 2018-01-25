@@ -3,6 +3,7 @@ package com.github.messagic.streams.input;
 import java.io.IOException;
 import java.util.Base64;
 
+import com.github.messagic.Event;
 import com.github.messagic.MessageChannel;
 import com.github.messagic.streams.StreamsMessageChannelException;
 
@@ -19,7 +20,7 @@ final class BinaryMessage implements Message {
     }
 
     @Override
-    public DecodedMessage decodedMessage() throws IOException {
+    public Event event() throws IOException {
         byte[] decodedBytes;
         try {
             decodedBytes = Base64.getDecoder().decode(encodedMessage);
@@ -32,7 +33,7 @@ final class BinaryMessage implements Message {
                     encodedMessageFragment, binaryMessageMaximumSize);
             throw new StreamsMessageChannelException(error);
         }
-        return () -> new BinaryMessageEvent(channel, decodedBytes);
+        return new BinaryMessageEvent(channel, decodedBytes);
     }
 
 }

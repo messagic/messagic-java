@@ -1,5 +1,6 @@
 package com.github.messagic.streams.input;
 
+import com.github.messagic.Event;
 import com.github.messagic.MessageChannel;
 import com.github.messagic.streams.StreamsMessageChannelException;
 
@@ -16,13 +17,13 @@ final class TextMessage implements Message {
     }
 
     @Override
-    public DecodedMessage decodedMessage() throws StreamsMessageChannelException {
+    public Event event() throws StreamsMessageChannelException {
         if (encodedMessage.length() > textMessageMaximumSize) {
             String error = String.format("Incoming text message \"%s...\" is bigger than allowed %s characters",
                     encodedMessage.substring(0, textMessageMaximumSize), textMessageMaximumSize);
             throw new StreamsMessageChannelException(error);
         }
-        return () -> new TextMessageEvent(channel, encodedMessage);
+        return new TextMessageEvent(channel, encodedMessage);
     }
 
 }

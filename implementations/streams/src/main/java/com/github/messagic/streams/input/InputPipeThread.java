@@ -21,8 +21,7 @@ public final class InputPipeThread {
                 while (!stopped) {
                     messageStream.readNextMessage();
                     Message message = messageStream.message();
-                    DecodedMessage decodedMessage = message.decodedMessage();
-                    onMessage.accept(decodedMessage.event());
+                    onMessage.accept(message.event());
                 }
             } catch (InterruptedIOException e) {
                 logger.info("Reading message stream interrupted");
