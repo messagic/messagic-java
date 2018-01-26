@@ -32,7 +32,7 @@ import com.github.messagic.streams.output.OutputPipe;
  * are encoded using Base64. Every message is separated using new line "\n".
  * <p>
  * More info about Protocol here:
- * <a href="https://github.com/jacekolszak/messagic-java/blob/master/implementations/streams/README.md">README.md</a>
+ * <a href="https://github.com/messagic/messagic-java/blob/master/implementations/streams/README.md">README.md</a>
  */
 public final class StreamsMessageChannel implements MessageChannel {
 

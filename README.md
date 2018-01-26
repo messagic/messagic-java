@@ -1,5 +1,5 @@
 # messagic-java 
-Java implementation of [Messagic](https://github.com/jacekolszak/messagic), a high level API for asynchronous message passing
+Java implementation of [Messagic](https://github.com/messagic/messagic), a high level API for asynchronous message passing
 
 [![CircleCI](https://circleci.com/gh/jacekolszak/messagic-java.svg?style=svg)](https://circleci.com/gh/jacekolszak/messagic-java) [![Gitter](https://badges.gitter.im/jacekolszak/messagic.svg)](https://gitter.im/jacekolszak/messagic?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
