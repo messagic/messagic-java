@@ -46,8 +46,8 @@ public final class MessageStream {
     }
 
     void readNextMessage() throws IOException {
-        char typeOrFistCharacter = readChar();
-        switch (typeOrFistCharacter) {
+        char messageTypeOrFistCharacter = readChar();
+        switch (messageTypeOrFistCharacter) {
             case '@':
                 String message = readMultiLineMessage(textMessageMaximumSize + 2);
                 this.message = new TextMessage(channel, message, textMessageMaximumSize);
@@ -65,7 +65,7 @@ public final class MessageStream {
                 this.message = new TextMessage(channel, "", textMessageMaximumSize);
                 break;
             default:
-                message = typeOrFistCharacter + readMessage(textMessageMaximumSize - 1);
+                message = messageTypeOrFistCharacter + readMessage(textMessageMaximumSize - 1);
                 this.message = new TextMessage(channel, message, textMessageMaximumSize);
         }
     }
