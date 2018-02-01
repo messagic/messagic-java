@@ -36,18 +36,18 @@ final class ReceivingSpec extends Specification {
     }
 
     @Unroll
-    void 'should read encoded text message "#inputString" from input stream and notify listener with "#expectedMessage"'() {
+    void 'should read encoded text message "#encodedMessageFormatted" from input stream and notify listener with "#expectedMessage"'() {
         given:
             ConsumeOneMessage<TextMessage> listener = new ConsumeOneMessage()
             channel.addListener(TextMessage, listener)
             channel.start()
         when:
-            inputStream.write(inputString.getBytes("UTF-8"))
+            inputStream.write(encodedMessage.getBytes("UTF-8"))
         then:
             listener.message().text() == expectedMessage
             listener.message().channel() == channel
         where:
-            inputString      || expectedMessage
+            encodedMessage   || expectedMessage
             'textMessage\n'  || 'textMessage'
             '#textMessage\n' || 'textMessage'
             '\n'             || ''
@@ -56,6 +56,7 @@ final class ReceivingSpec extends Specification {
             'ą\n'            || 'ą' // 2 bytes in UTF-8
             'ಎ\n'            || 'ಎ' // 3 bytes
             '𐊀\n'           || '𐊀' // 4 bytes
+            encodedMessageFormatted = encodedMessage.replaceAll(/\n/, '\\\\n')
     }
 
     @Unroll
