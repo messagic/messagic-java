@@ -90,7 +90,7 @@ final class SendingSpec extends Specification {
     }
 
     @Unroll
-    void 'should send text message "#message" encoded as "#line\\n"'() {
+    void 'should send text message "#message" encoded as "#lineFormatted"'() {
         given:
             channel.start()
         when:
@@ -103,6 +103,7 @@ final class SendingSpec extends Specification {
             '$message' || '#$message\n'
             '@message' || '#@message\n'
             '.'        || '.\n'
+            lineFormatted = line.replaceAll(/\n/, '\\\\n')
     }
 
     @Unroll
@@ -121,8 +122,8 @@ final class SendingSpec extends Specification {
             '\n.'         || '@\n..\n.\n'
             '\n..'        || '@\n...\n.\n'
             '@\n'         || '@@\n\n.\n'
-            messageFormatted = message.replaceAll('\\n', '\\\\n')
-            encodedFormatted = encoded.replaceAll('\\n', '\\\\n')
+            messageFormatted = message.replaceAll(/\n/, '\\\\n')
+            encodedFormatted = encoded.replaceAll(/\n/, '\\\\n')
     }
 
     void 'after stop() no new outgoing messages are sent'() {
